@@ -1,0 +1,28 @@
+## Interface: 30300
+## Title: DropList
+## Title-esES: DropList
+## Title-esMX: DropList
+## Notes: Lista simple de objetos.
+## Notes-esES: Lista simple de objetos.
+## Notes-esMX: Lista simple de objetos.
+## Author: Sathaniel
+## Version: 0.4
+## SavedVariables: DropListDB
+## SavedVariablesPerCharacter: DropListCharDB
+## OptionalDeps: ElvUI
+## X-Category: Raid
+## IconTexture: Interface\Icons\INV_Misc_Bag_10
+## DefaultState: enabled
+## X-License: Apache-2.0
+## X-Author: Adán Luis Quincoces Escalona
+
+Bootstrap.lua
+Config.lua
+Localization.lua
+Model.lua
+UI\Widgets.lua
+UI\ElvUI.lua
+UI\MainFrame.lua
+Minimap.lua
+SelfTest.lua
+Core.lua
