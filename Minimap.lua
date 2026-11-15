@@ -105,16 +105,12 @@ function DropList:ShowMinimapMenu()
 		self.contextMenu = CreateFrame("Frame", "DropListContextMenu", UIParent, "UIDropDownMenuTemplate")
 	end
 	local menu = {
-		{ text = L.MenuScale .. " 0.8", func = function() DropList:ApplyScale(0.8) end },
-		{ text = L.MenuScale .. " 1.0", func = function() DropList:ApplyScale(1.0) end },
-		{ text = L.MenuScale .. " 1.2", func = function() DropList:ApplyScale(1.2) end },
-		{ text = "-", isTitle = true, notCheckable = true },
-		{ text = L.MenuMinimap, func = function() DropList:SetMinimapVisible(false) end },
-		{ text = L.MenuTheme, hasArrow = true, notCheckable = true, menuList = {
-			{ text = L.ThemeAuto, notCheckable = true, func = function() DropList:CommandTheme("auto") end },
-			{ text = L.ThemeElvUI, notCheckable = true, func = function() DropList:CommandTheme("elvui") end },
-			{ text = L.ThemeClassic, notCheckable = true, func = function() DropList:CommandTheme("classic") end },
+		{ text = L.MenuScale, hasArrow = true, notCheckable = true, menuList = {
+			{ text = L.MenuScale .. " 0.8", notCheckable = true, func = function() DropList:ApplyScale(0.8) end },
+			{ text = L.MenuScale .. " 1.0", notCheckable = true, func = function() DropList:ApplyScale(1.0) end },
+			{ text = L.MenuScale .. " 1.2", notCheckable = true, func = function() DropList:ApplyScale(1.2) end },
 		} },
+		{ text = L.MenuMinimap, notCheckable = true, func = function() DropList:SetMinimapVisible(false) end },
 		{ text = L.MenuColor, hasArrow = true, notCheckable = true, menuList = {
 			{ text = "Azul", notCheckable = true, func = function() DropList:CommandColor("azul") end },
 			{ text = "Cian", notCheckable = true, func = function() DropList:CommandColor("cian") end },
@@ -123,10 +119,9 @@ function DropList:ShowMinimapMenu()
 			{ text = "Morado", notCheckable = true, func = function() DropList:CommandColor("morado") end },
 			{ text = "Rojo", notCheckable = true, func = function() DropList:CommandColor("rojo") end },
 		} },
-		{ text = "-", isTitle = true, notCheckable = true },
-		{ text = L.MenuTest, func = function() DropList:RunSelfTest() end },
-		{ text = L.MenuReset, func = function() DropList:ConfirmClear() end },
-		{ text = L.MenuHelp, func = function() DropList:PrintHelp() end },
+		{ text = L.MenuTest, notCheckable = true, func = function() DropList:RunSelfTest() end },
+		{ text = L.MenuReset, notCheckable = true, func = function() DropList:ConfirmClear() end },
+		{ text = L.MenuHelp, notCheckable = true, func = function() DropList:PrintHelp() end },
 	}
 	EasyMenu(menu, self.contextMenu, "cursor", 0, 0, "MENU")
 end

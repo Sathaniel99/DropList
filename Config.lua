@@ -36,11 +36,16 @@ local ACCOUNT_DEFAULTS = {
 		minimap = true,
 		minimapAngle = 210,
 		search = "",
-		-- Aspecto (skin opcional de ElvUI + ajustes propios, como Omen)
+		-- Appearance (optional ElvUI skin + own tweaks, like Omen)
 		theme = "auto",
 		accent = { r = 0.41, g = 0.80, b = 0.94 },
 		opacity = 0.94,
 		fontSize = 0,
+		tooltipButton = true,
+		tooltipQualities = {
+		    solo = { [2]=true, [3]=true, [4]=true, [5]=true },
+		    group = { [3]=true, [4]=true, [5]=true },
+		},
 	},
 }
 
@@ -48,8 +53,8 @@ local CHAR_DEFAULTS = {
 	version = SCHEMA,
 }
 
--- Las versiones antiguas guardaban una fila por objeto + jefe + dificultad. Se
--- agrupan en una sola fila por objeto para que nadie pierda su lista.
+-- Old versions stored one row per item + boss + difficulty. Fold those into a
+-- single row per item so nobody loses their list.
 local function normalizeEntries()
 	local entries = _G.DropListCharDB.entries
 	local normalized = {}
@@ -96,8 +101,8 @@ function DropList:InitDB()
 	end
 
 	if previousVersion < SCHEMA then
-		-- La versión 0.1 dejaba un filtro y ajustes de raid. Un filtro viejo es la
-		-- forma más fácil de pensar que "el addon no añadió nada".
+		-- Version 0.1 left a filter and raid settings behind. A stale filter is
+		-- the easiest way to think "the addon did not add anything".
 		local settings = _G.DropListDB.settings
 		settings.search = ""
 		settings.raidScale = nil
@@ -108,7 +113,7 @@ function DropList:InitDB()
 		settings.selBossInstance = nil
 	end
 
-	-- Evita que un tema desconocido rompa el selector de tema.
+	-- Keep an unknown theme value from breaking the theme picker.
 	local theme = _G.DropListDB.settings.theme
 	if theme ~= "auto" and theme ~= "elvui" and theme ~= "classic" then
 		_G.DropListDB.settings.theme = "auto"
@@ -139,7 +144,7 @@ function DropList:Print(message, r, g, b)
 	)
 end
 
--- Quita espacios al principio y al final de cualquier valor.
+-- Trims leading/trailing whitespace from any value.
 function DropList.Trim(text)
 	text = tostring(text or "")
 	text = string.gsub(text, "^%s+", "")
