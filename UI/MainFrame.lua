@@ -22,11 +22,8 @@ function DropList:CreateMainFrame()
 	f:SetScript("OnShow", function()
 		self:Refresh()
 	end)
-<<<<<<< HEAD
-=======
 	-- Red de seguridad: con la ventana abierta se mantiene a la vista el último
 	-- objeto del tooltip, aunque otro addon reemplace el callback OnTooltipSetItem.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	f:SetScript("OnUpdate", function()
 		local tooltip = GameTooltip
 		if not tooltip or not tooltip.IsShown or not tooltip:IsShown() then
@@ -87,11 +84,7 @@ function DropList:CreateMainFrame()
 	f.itemHeader:SetText(L.Item)
 
 	f.countHeader = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-<<<<<<< HEAD
 	f.countHeader:SetPoint("TOPRIGHT", f, "TOPRIGHT", -130, -94)
-=======
-	f.countHeader:SetPoint("TOPRIGHT", f, "TOPRIGHT", -130, -74)
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	f.countHeader:SetText(L.Count)
 
 	f.itemList = W.List(f, "DropListItemScroll", 404, ROW_COUNT * ROW_HEIGHT, ROW_HEIGHT, ROW_COUNT, {
@@ -112,11 +105,8 @@ function DropList:CreateMainFrame()
 			row.count:SetWidth(40)
 			row.count:SetJustifyH("RIGHT")
 
-<<<<<<< HEAD
-=======
 			-- De izquierda a derecha: [X] [+] [-]. El - solo se muestra a partir de x2 y
 			-- + / - se ocultan en el equipo (un botón, como antes).
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 			local function rowButton(offset, text, tooltip, onClick)
 				local button = W.Button(row, text, 20, 18, onClick)
 				button:SetPoint("RIGHT", row, "RIGHT", offset, 0)
@@ -271,10 +261,7 @@ function DropList:RemoveEntry(itemID)
 	self:Print(string.format(L.Removed, M:DisplayName(entry)), 0.8, 0.8, 0.8)
 end
 
-<<<<<<< HEAD
-=======
 -- Botones de fila - / +: silenciosos (sin spam en el chat) y sin deshacer.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:AdjustEntry(itemID, delta)
 	local entry, changed = M:Adjust(itemID, delta)
 	if not entry or not changed then
