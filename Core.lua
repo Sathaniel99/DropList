@@ -57,11 +57,8 @@ function DropList:ResolveItem(input)
 		maxStack = maxStack,
 		equipLoc = equipLoc,
 	}
-<<<<<<< HEAD
-=======
 	-- Solo se clasifica cuando el cliente ya conoce el objeto: uno sin caché
 	-- devuelve un nombre nil y ningún dato de tipo.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	if name then
 		data.itemType = self:ClassifyItem(equipLoc, maxStack)
 	end
@@ -88,44 +85,32 @@ function DropList:ResolveItem(input)
 	return data
 end
 
-<<<<<<< HEAD
-=======
 -- Tipo de objeto: un botón para equipo, tres (X, +, -) para objetos contables ---
 -- GetItemInfo en 3.3.5 devuelve:
 -- name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipLoc, texture
 -- El equipo tiene un slot real y no apila. Todo lo demás (marcas de
 -- santificación, saronita, tokens de tier, materiales, munición...) es contable.
 
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 local NON_EQUIP_LOCS = {
 	[""] = true,
 	["INVTYPE_NON_EQUIP"] = true,
 	["INVTYPE_NON_EQUIP_IGNORE"] = true,
 }
 
-<<<<<<< HEAD
-=======
 -- Función pura: equipLoc y maxStack tal y como los devuelve GetItemInfo para un objeto conocido.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ClassifyItem(equipLoc, maxStack)
 	if type(equipLoc) ~= "string" or NON_EQUIP_LOCS[equipLoc] then
 		return "stack"
 	end
-<<<<<<< HEAD
-=======
 	-- Munición, armas arrojadizas y todo lo que apila se cuenta, no es equipo.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	if (tonumber(maxStack) or 1) > 1 then
 		return "stack"
 	end
 	return "equip"
 end
 
-<<<<<<< HEAD
-=======
 -- Lee el tipo de la caché del cliente y lo guarda en la entrada, porque
 -- 3.3.5 solo conoce los objetos que ya están en la caché del cliente.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:DetectItemType(entry)
 	if not entry or not entry.itemID then
 		return nil
@@ -141,10 +126,7 @@ function DropList:DetectItemType(entry)
 	return itemType
 end
 
-<<<<<<< HEAD
-=======
 -- Mientras el cliente no conozca el objeto se muestra un solo botón.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:IsEquipableEntry(entry)
 	if not entry then
 		return true
@@ -162,11 +144,8 @@ function DropList:IsEquipableEntry(entry)
 	return true
 end
 
-<<<<<<< HEAD
-=======
 -- Completa nombres/iconos y el tipo de los objetos que no estaban en caché al
 -- añadirlos.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:EnrichEntries()
 	local changed = false
 	for _, entry in pairs(M:Entries()) do
@@ -193,15 +172,11 @@ function DropList:EnrichEntries()
 end
 
 -- Captura de tooltips -----------------------------------------------------------
-<<<<<<< HEAD
-
-=======
 -- Misma idea que LootPlan: leer el tooltip que hay en pantalla ahora mismo y
 -- guardar además el último objeto visto. Lo segundo importa para el botón
 -- "Añadir", porque al mover el ratón al botón desaparece el tooltip del objeto.
 
 -- Primero GameTooltip, luego los tooltips de AtlasLoot y de los enlaces pulsados.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:TooltipList()
 	local list = {}
 	if GameTooltip then
@@ -216,11 +191,8 @@ function DropList:TooltipList()
 	return list
 end
 
-<<<<<<< HEAD
-=======
 -- requireShown = false al capturar: durante OnTooltipSetItem el tooltip ya
 -- tiene los datos pero puede que aún no sea visible.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:LinkFromTooltip(tooltip, requireShown)
 	if not tooltip or not tooltip.GetItem then
 		return nil
@@ -243,10 +215,7 @@ function DropList:RememberItemLink(link)
 	self:UpdateLastItemLabel()
 end
 
-<<<<<<< HEAD
-=======
 -- Muestra qué objeto va a usar el botón.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:UpdateLastItemLabel()
 	local frame = self.main
 	if not frame or not frame.lastItem then
@@ -270,12 +239,9 @@ function DropList:CaptureTooltip(tooltip)
 	return link
 end
 
-<<<<<<< HEAD
-=======
 -- OnTooltipSetItem se dispara con cualquier forma de mostrar un objeto (bolsa,
 -- botín, subasta, recompensa de misión, enlace...), así que es el hook fiable.
 -- SetHyperlink queda como respaldo para tooltips que no llamen al callback.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:HookTooltips()
 	self.hookedTooltips = self.hookedTooltips or {}
 	for _, tooltip in ipairs(self:TooltipList()) do
@@ -300,10 +266,7 @@ function DropList:ItemFromGameTooltip()
 	return link and self:ResolveItem(link) or nil
 end
 
-<<<<<<< HEAD
-=======
 -- El objeto ya salió del tooltip: se usa el capturado por el hook.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ItemFromCaptured()
 	if self.lastItemLink then
 		return self:ResolveItem(self.lastItemLink)
@@ -311,10 +274,7 @@ function DropList:ItemFromCaptured()
 	return nil
 end
 
-<<<<<<< HEAD
-=======
 -- Tooltips de AtlasLoot / ItemRef, solo como último recurso.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ItemFromOtherTooltips()
 	for _, tooltip in ipairs(self:TooltipList()) do
 		if tooltip ~= GameTooltip then
@@ -330,10 +290,7 @@ function DropList:ItemFromOtherTooltips()
 	return nil
 end
 
-<<<<<<< HEAD
-=======
 -- Lectura estilo LootPlan: primero GameTooltip y luego el último objeto mostrado.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ItemFromTooltip()
 	return self:ItemFromGameTooltip()
 		or self:ItemFromCaptured()
@@ -357,19 +314,13 @@ function DropList:ItemFromCursor()
 	return itemID and self:ResolveItem(itemID) or nil
 end
 
-<<<<<<< HEAD
-=======
 -- Enlace en la caja de chat (shift-clic ahí y luego pulsar Añadir).
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ItemFromChat()
 	local edit = ChatEdit_GetActiveWindow and ChatEdit_GetActiveWindow()
 	if not edit or not edit.GetText then
 		return nil
 	end
-<<<<<<< HEAD
-=======
 	-- Un chat cerrado puede conservar el último mensaje: solo se usa si está visible.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	if edit.IsShown and not edit:IsShown() then
 		return nil
 	end
@@ -380,10 +331,7 @@ function DropList:ItemFromChat()
 	return self:ResolveItem(text)
 end
 
-<<<<<<< HEAD
-=======
 -- Devuelve true si el jugador está escribiendo en el chat ahora mismo.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:ChatIsTyping()
 	local edit = ChatEdit_GetActiveWindow and ChatEdit_GetActiveWindow()
 	if not edit then
@@ -399,10 +347,7 @@ function DropList:ChatIsTyping()
 	return false
 end
 
-<<<<<<< HEAD
-=======
 -- Devuelve true si cualquier caja de texto tiene el teclado, del chat u otro addon.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:IsTypingInEditBox()
 	local focus = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
 	return focus ~= nil and focus.GetText ~= nil
@@ -447,10 +392,7 @@ function DropList:ReportNoItem()
 	end
 end
 
-<<<<<<< HEAD
-=======
 -- Arrastrar y soltar en la ventana/botón: usa solo el cursor.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 function DropList:AddFromCursor()
 	local item = self:ItemFromCursor()
 	if not item then
@@ -463,14 +405,10 @@ function DropList:AddFromCursor()
 	return self:AddItem(item)
 end
 
-<<<<<<< HEAD
-function DropList:AddFromUI()
-=======
 -- Botón "Añadir": primero el cursor, luego el enlace del chat si el jugador
 -- está escribiendo en él, y por último el tooltip (actual o el último capturado).
 function DropList:AddFromUI()
 	-- AtlasLoot o cualquier addon cargado tarde puede crear su tooltip después.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	self:HookTooltips()
 
 	local item = self:ItemFromCursor()
@@ -508,10 +446,7 @@ function DropList:AddFromCommand(rest)
 		return
 	end
 
-<<<<<<< HEAD
-=======
 	-- Se quita la referencia al objeto para leer la cantidad opcional.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	local tail = rest
 	tail = string.gsub(tail, "|c%x%x%x%x%x%x%x%x|Hitem:%d+[^|]*|h%[.-%]|h|r", " ")
 	tail = string.gsub(tail, "|Hitem:%d+[^|]*|h%[.-%]|h", " ")
@@ -717,10 +652,7 @@ local function dispatchCommand(command, rest)
 end
 
 local function handleCommand(message)
-<<<<<<< HEAD
-=======
 	-- Se conserva el caso original: los enlaces de objeto no deben pasar a minúsculas.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	local command, rest = string.match(tostring(message or ""), "^(%S*)%s*(.*)$")
 	dispatchCommand(string.lower(command or ""), rest or "")
 end
@@ -729,11 +661,8 @@ SLASH_DROPLIST1 = "/droplist"
 SLASH_DROPLIST2 = "/dl"
 SLASH_DROPLIST3 = "/dlist"
 SlashCmdList["DROPLIST"] = function(message)
-<<<<<<< HEAD
-=======
 	-- Un error de Lua aquí abortaría ChatEdit_SendText y dejaría el chat abierto,
 	-- así que se captura siempre y se informa por el chat.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 	local ok, err = pcall(handleCommand, message)
 	if not ok then
 		DropList:Print("Error: " .. tostring(err), 1, 0.3, 0.3)
@@ -770,11 +699,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
 			local originalInsertLink = ChatEdit_InsertLink
 			if originalInsertLink then
 				ChatEdit_InsertLink = function(text, ...)
-<<<<<<< HEAD
-=======
 					-- Shift-clic sobre un objeto con la lista abierta: se añade directamente.
 					-- Nunca se roba el enlace mientras el jugador escribe en cualquier sitio.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
 					if not DropList:IsTypingInEditBox()
 						and DropList.main and DropList.main:IsShown()
 						and type(text) == "string" and string.find(text, "item:", 1, true) then
@@ -791,10 +717,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
 
 		DropList:Print(L.Loaded, 0.8, 0.8, 0.8)
 	elseif event == "PLAYER_ENTERING_WORLD" then
-<<<<<<< HEAD
-=======
-		-- ElvUI puede terminar de inicializarse después: se refrescan fuentes/colores.
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
+		-- El cliente puede terminar de inicializar la UI después: se refresca
+		-- el skin (color de acento, fuentes y opacidad) y el botón del minimapa.
 		if DropList.main then
 			DropList:ApplySkin()
 		end
@@ -802,10 +726,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
 	end
 end)
 
-<<<<<<< HEAD
-DropList:HookTooltips()
-=======
 -- Se instalan los hooks del tooltip lo antes posible, para que un objeto visto
 -- antes de abrir la ventana ya esté capturado.
 DropList:HookTooltips()
->>>>>>> 50ca61ddecda436c8a44250f1a9fdb6f198a5447
