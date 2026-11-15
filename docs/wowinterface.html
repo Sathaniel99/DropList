@@ -1,0 +1,94 @@
+<!-- Descripción para la ficha de WoWInterface.
+     Sustituye cada URL_FOTO_N por el enlace de tu captura. -->
+
+<p><strong>Una lista de objetos, nada más.</strong> Añade el objeto que quieras y DropList lleva la cuenta por ti.</p>
+
+<p>Addon para <strong>World of Warcraft 3.3.5a</strong> (Wrath of the Lich King). Sin bosses, sin instancias, sin loot tables: tú decides qué entra en la lista.</p>
+
+<!-- FOTO 1: ventana principal con varios objetos y los botones X / + / − -->
+<p align="center"><img src="URL_FOTO_1" alt="Ventana principal de DropList"><br>
+<em>Ventana principal: lista de objetos con contadores y botones por fila.</em></p>
+
+<h3>Qué hace</h3>
+<ul>
+  <li><strong>Añadir objetos</strong> de cuatro formas: comando, botón, Shift-clic o arrastrando desde la mochila.</li>
+  <li><strong>Contadores automáticos:</strong> si repites un objeto no se duplica la fila, sube el contador (x2, x3…).</li>
+  <li><strong>Botones por fila:</strong> [X] para quitar y [+] / [−] para ajustar la cantidad de 1 en 1.</li>
+  <li><strong>Deshacer</strong> el último añadido, quitado o vaciado (hasta 30 pasos).</li>
+  <li><strong>Buscador</strong> por nombre o por ID.</li>
+  <li><strong>Datos por personaje</strong> y preferencias por cuenta.</li>
+</ul>
+
+<!-- FOTO 2: botón Añadir con el aviso "Se añadirá: ..." -->
+<p align="center"><img src="URL_FOTO_2" alt="Añadiendo un objeto con DropList"><br>
+<em>El botón Añadir usa el objeto del cursor, el enlace del chat o el último tooltip.</em></p>
+
+<h3>Botones de cantidad</h3>
+
+<p>El addon clasifica cada objeto solo, con los datos del cliente:</p>
+
+<ul>
+  <li><strong>Equipo</strong> (armas, armaduras, abalorios, anillos, capas, reliquias, bolsas): solo <strong>[X]</strong>.</li>
+  <li><strong>Contables</strong> (marcas y tokens de tier, materiales, gemas, patrones, comida, pociones, munición…): <strong>[X] [+]</strong>, y <strong>[−]</strong> a partir de x2.</li>
+</ul>
+
+<p>La cantidad nunca baja de 1 y los <strong>+ / −</strong> no entran en el historial de Deshacer. Si el cliente todavía no conoce el objeto, la fila muestra solo [X] y se corrige sola en cuanto lo cachea.</p>
+
+<!-- FOTO 3: fila de equipo (solo X) frente a fila contable (X + −) -->
+<p align="center"><img src="URL_FOTO_3" alt="Botones por tipo de objeto"><br>
+<em>Arriba, equipo; abajo, objeto contable con X, + y −.</em></p>
+
+<h3>Apariencia</h3>
+
+<ul>
+  <li><strong>ElvUI es opcional:</strong> si está instalado, usa sus plantillas, fuentes, colores, botones y scrollbar. Si no, mantiene el aspecto clásico de Blizzard.</li>
+  <li><strong>Color de acento</strong>, <strong>opacidad</strong> y <strong>tamaño de fuente</strong> configurables sin tocar ElvUI.</li>
+  <li>Botón en el <strong>minimapa</strong> y menú de clic derecho con las opciones rápidas.</li>
+</ul>
+
+<!-- FOTO 4: DropList con skin de ElvUI -->
+<p align="center"><img src="URL_FOTO_4" alt="DropList con el skin de ElvUI"><br>
+<em>Integración automática con ElvUI.</em></p>
+
+<h3>Comandos</h3>
+
+<ul>
+  <li><strong>/droplist</strong> o <strong>/dl</strong> — abrir / cerrar la lista.</li>
+  <li><strong>/droplist add &lt;enlace o ID&gt; [cantidad]</strong> — añadir un objeto.</li>
+  <li><strong>/droplist undo</strong> — deshacer el último cambio.</li>
+  <li><strong>/droplist reset</strong> — vaciar la lista (pide confirmación).</li>
+  <li><strong>/droplist scale 1.2</strong> — escala de la ventana.</li>
+  <li><strong>/droplist color dorado</strong> — color de acento (hex o nombre).</li>
+  <li><strong>/droplist opacity 0.85</strong> — opacidad del fondo.</li>
+  <li><strong>/droplist fontsize 14</strong> — tamaño de fuente (0 = automático).</li>
+  <li><strong>/droplist theme auto | elvui | classic</strong> — aspecto de la ventana.</li>
+  <li><strong>/droplist minimap</strong> — mostrar u ocultar el botón del minimapa.</li>
+  <li><strong>/droplist test</strong> — autocomprobación.</li>
+  <li><strong>/droplist help</strong> — ayuda.</li>
+</ul>
+
+<!-- FOTO 5: menú del clic derecho del botón del minimapa -->
+<p align="center"><img src="URL_FOTO_5" alt="Menú del botón del minimapa"><br>
+<em>Menú del minimapa: tema, color y opciones rápidas.</em></p>
+
+<h3>Instalación</h3>
+
+<p>Copia la carpeta <strong>DropList</strong> en <strong>World of Warcraft\Interface\AddOns\</strong>. Debe quedar <strong>...\AddOns\DropList\DropList.toc</strong>. Luego entra al juego o escribe <strong>/reload</strong>.</p>
+
+<h3>Requisitos</h3>
+
+<ul>
+  <li>World of Warcraft <strong>3.3.5a</strong> (Interface 30300).</li>
+  <li><strong>Sin dependencias:</strong> Lua 5.1 puro, no necesita ninguna librería.</li>
+  <li><strong>ElvUI opcional.</strong></li>
+  <li>Interfaz en <strong>español</strong>.</li>
+</ul>
+
+<h3>Notas</h3>
+
+<ul>
+  <li>Es <strong>manual a propósito</strong>: no adivina loot, tú añades lo que quieras.</li>
+  <li>3.3.5 no tiene buscador global de objetos: para darlo de alta necesitas su enlace, su ID, o tenerlo en el cursor o en el tooltip.</li>
+  <li>Las listas de versiones anteriores (con jefe y dificultad) se migran solas: los objetos repetidos se agrupan y las cantidades se suman.</li>
+  <li>Shift-clic con la ventana abierta añade el objeto en vez de enlazarlo en el chat.</li>
+</ul>

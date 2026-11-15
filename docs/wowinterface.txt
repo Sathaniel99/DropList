@@ -1,0 +1,69 @@
+DROPLIST 0.5
+============
+
+Una lista de objetos, nada más. Añade el objeto que quieras y DropList lleva la cuenta por ti.
+
+Addon para World of Warcraft 3.3.5a (Wrath of the Lich King). Sin bosses, sin instancias, sin loot tables: tú decides qué entra en la lista.
+
+[FOTO 1: ventana principal]
+URL_FOTO_1
+
+QUÉ HACE
+- Añadir objetos de cuatro formas: comando, botón, Shift-clic o arrastrando desde la mochila.
+- Contadores automáticos: repetir un objeto no duplica la fila, sube el contador (x2, x3…).
+- Botones por fila: [X] para quitar y [+] / [−] para ajustar la cantidad de 1 en 1.
+- Deshacer el último añadido, quitado o vaciado (hasta 30 pasos).
+- Buscador por nombre o por ID.
+- Datos por personaje y preferencias por cuenta.
+
+[FOTO 2: botón Añadir]
+URL_FOTO_2
+
+BOTONES DE CANTIDAD
+El addon clasifica cada objeto solo, con los datos del cliente:
+- Equipo (armas, armaduras, abalorios, anillos, capas, reliquias, bolsas): solo [X].
+- Contables (marcas y tokens de tier, materiales, gemas, patrones, comida, pociones, munición…): [X] [+], y [−] a partir de x2.
+La cantidad nunca baja de 1 y los + / − no entran en el historial de Deshacer.
+
+[FOTO 3: equipo vs. contable]
+URL_FOTO_3
+
+APARIENCIA
+- ElvUI es opcional: si está instalado usa sus plantillas, fuentes y colores; si no, el aspecto clásico de Blizzard.
+- Color de acento, opacidad y tamaño de fuente configurables sin tocar ElvUI.
+- Botón en el minimapa y menú de clic derecho.
+
+[FOTO 4: DropList con ElvUI]
+URL_FOTO_4
+
+COMANDOS
+/droplist o /dl — abrir / cerrar la lista
+/droplist add <enlace o ID> [cantidad] — añadir un objeto
+/droplist undo — deshacer el último cambio
+/droplist reset — vaciar la lista (con confirmación)
+/droplist scale 1.2 — escala de la ventana
+/droplist color dorado — color de acento
+/droplist opacity 0.85 — opacidad del fondo
+/droplist fontsize 14 — tamaño de fuente (0 = automático)
+/droplist theme auto|elvui|classic — aspecto de la ventana
+/droplist minimap — mostrar u ocultar el botón del minimapa
+/droplist test — autocomprobación
+/droplist help — ayuda
+
+[FOTO 5: menú del minimapa]
+URL_FOTO_5
+
+INSTALACIÓN
+Copia la carpeta DropList en World of Warcraft\Interface\AddOns\. Debe quedar ...\AddOns\DropList\DropList.toc. Luego entra al juego o escribe /reload.
+
+REQUISITOS
+- World of Warcraft 3.3.5a (Interface 30300).
+- Sin dependencias: Lua 5.1 puro.
+- ElvUI opcional.
+- Interfaz en español.
+
+NOTAS
+- Es manual a propósito: no adivina loot.
+- 3.3.5 no tiene buscador global: necesitas enlace, ID, cursor o tooltip.
+- Las listas antiguas (con jefe y dificultad) se migran solas.
+- Shift-clic con la ventana abierta añade el objeto en vez de enlazarlo.

@@ -1,6 +1,8 @@
 # DropList 0.5
 
-Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Solo hace una cosa: **una lista de objetos**. Añades un objeto y la lista lleva la cuenta de cuántas veces lo has añadido. Sin bosses, sin instancias, sin dificultades.
+**Una lista de objetos, nada más.** Añades un objeto y DropList lleva la cuenta de cuántas veces lo has añadido.
+
+Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Sin bosses, sin instancias, sin loot tables: tú decides qué entra en la lista.
 
 - **Autor:** Sathaniel
 - **Versión:** 0.5
@@ -8,6 +10,18 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Solo hace una 
 - **Dependencias:** ninguna (Lua 5.1 puro). **ElvUI es opcional**: si está instalado, DropList usa su aspecto.
 - **Tema:** se adapta a ElvUI cuando lo detecta; también funciona con el aspecto clásico de Blizzard.
 - **Categoría:** JcE & Enfrentamiento de Jefes (principal), Miscelánea (secundaria).
+- **Idioma:** interfaz en español.
+
+---
+
+## Qué hace
+
+- **Añadir objetos** de cuatro formas: comando, botón, Shift-clic o arrastrando desde la mochila.
+- **Contadores automáticos**: si repites un objeto no se duplica la fila, sube el contador (`x2`, `x3`…).
+- **Botones por fila**: `[X]` para quitar y `[+]` / `[−]` para ajustar la cantidad de 1 en 1.
+- **Deshacer** el último añadido, quitado o vaciado (hasta 30 pasos).
+- **Buscador** por nombre o por ID.
+- **Datos por personaje** y preferencias por cuenta.
 
 ---
 
@@ -20,6 +34,8 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Solo hace una 
    Debe quedar `...\AddOns\DropList\DropList.toc`.
 2. Entra al juego o escribe `/reload`.
 3. Abre la lista con `/droplist` o con el botón del minimapa.
+
+**Requisitos:** World of Warcraft 3.3.5a (Interface `30300`), sin librerías externas y con ElvUI opcional.
 
 ---
 
@@ -136,7 +152,7 @@ Las listas de la versión anterior (con boss y dificultad) se convierten solas: 
 6. Añade **49908** (Saronita primordial) o **47557** (Marca de santificación): la fila muestra `[X] [+]`, y `[−]` a partir de x2.
 7. Añade un arma o un abalorio: la fila muestra **solo X**.
 8. `/reload` → todo sigue ahí, con los mismos botones.
-7. Con ElvUI cargado, `/droplist theme` debe decir `detectado: ElvUI`; prueba `/droplist color dorado` y `/droplist opacity 0.85`.
+9. Con ElvUI cargado, `/droplist theme` debe decir `detectado: ElvUI`; prueba `/droplist color dorado` y `/droplist opacity 0.85`.
 
 ---
 
