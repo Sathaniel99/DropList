@@ -1,4 +1,4 @@
--- DropList - strings (Spanish UI, English fallback key)
+-- DropList - textos (interfaz en español, clave en inglés como respaldo)
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 

@@ -1,4 +1,4 @@
--- DropList - in-game self test (/droplist test)
+-- DropList - autocomprobación en el juego (/droplist test)
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -48,7 +48,7 @@ function DropList:RunSelfTest()
 		check("clear empties the list", #M:EntryList({}) == 0)
 		check("undo restores the clear", M:Undo() == true and M:Get(1) ~= nil)
 
-		-- Row buttons: gear gets one button, countable items get X, + and -.
+		-- Botones de fila: el equipo lleva un botón y los contables X, + y -.
 		check("weapon is gear", DropList:ClassifyItem("INVTYPE_WEAPON", 1) == "equip")
 		check("trinket is gear", DropList:ClassifyItem("INVTYPE_TRINKET", 1) == "equip")
 		check("bag is gear", DropList:ClassifyItem("INVTYPE_BAG", 1) == "equip")
@@ -58,7 +58,7 @@ function DropList:RunSelfTest()
 		check("no data is countable", DropList:ClassifyItem(nil, nil) == "stack")
 		check("unknown item keeps one button", DropList:IsEquipableEntry({}) == true)
 
-		-- + / -: clamped at 1 and not undoable.
+		-- + / -: limitados a 1 y sin entrar en Deshacer.
 		local undoBefore = M:UndoCount()
 		M:Add({ itemID = 70001, name = "Contable", itemType = "stack" })
 		local adjustEntry, changed = M:Adjust(70001, 1)

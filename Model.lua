@@ -1,4 +1,4 @@
--- DropList - data model: one row per item, with a count and undo
+-- DropList - modelo de datos: una fila por objeto, con contador y deshacer
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -65,8 +65,8 @@ local function pushUndo(undo)
 	end
 end
 
--- Adds an item (or increases its count).
--- info = { itemID, name, quality, icon, link, qty }
+-- Añade un objeto (o incrementa su contador).
+-- info = { itemID, name, quality, icon, link, qty, itemType, equipLoc, maxStack }
 function Model:Add(info)
 	local itemID = info and tonumber(info.itemID)
 	if not itemID then
@@ -98,8 +98,8 @@ function Model:Add(info)
 	return entry
 end
 
--- Changes the count by delta (the row's - / + buttons). It is deliberately not
--- an undoable action: Deshacer keeps undoing the last add, remove or clear.
+-- Cambia el contador en delta (botones - / + de la fila). A propósito no es
+-- una acción deshacible: Deshacer sigue deshaciendo el último añadir, quitar o vaciar.
 function Model:Adjust(itemID, delta)
 	itemID = tonumber(itemID)
 	local entry = itemID and charDB().entries[itemID]

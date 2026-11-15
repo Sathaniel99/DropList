@@ -1,4 +1,4 @@
--- DropList - minimap button
+-- DropList - botón del minimapa
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 

@@ -1,4 +1,4 @@
--- DropList - main window: a plain list of items
+-- DropList - ventana principal: una lista simple de objetos
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -22,8 +22,8 @@ function DropList:CreateMainFrame()
 	f:SetScript("OnShow", function()
 		self:Refresh()
 	end)
-	-- Safety net: while the window is open, keep the last item tooltip in sight
-	-- even if another addon replaces the OnTooltipSetItem callback.
+	-- Red de seguridad: con la ventana abierta se mantiene a la vista el último
+	-- objeto del tooltip, aunque otro addon reemplace el callback OnTooltipSetItem.
 	f:SetScript("OnUpdate", function()
 		local tooltip = GameTooltip
 		if not tooltip or not tooltip.IsShown or not tooltip:IsShown() then
@@ -91,8 +91,8 @@ function DropList:CreateMainFrame()
 			row.count:SetWidth(40)
 			row.count:SetJustifyH("RIGHT")
 
-			-- Left to right: [X] [+] [-]. The - is only shown from x2 on, and
-			-- + / - are hidden for gear (one button, like before).
+			-- De izquierda a derecha: [X] [+] [-]. El - solo se muestra a partir de x2 y
+			-- + / - se ocultan en el equipo (un botón, como antes).
 			local function rowButton(offset, text, tooltip, onClick)
 				local button = W.Button(row, text, 20, 18, onClick)
 				button:SetPoint("RIGHT", row, "RIGHT", offset, 0)
@@ -247,7 +247,7 @@ function DropList:RemoveEntry(itemID)
 	self:Print(string.format(L.Removed, M:DisplayName(entry)), 0.8, 0.8, 0.8)
 end
 
--- Row buttons - / +: silent (no chat spam) and not undoable.
+-- Botones de fila - / +: silenciosos (sin spam en el chat) y sin deshacer.
 function DropList:AdjustEntry(itemID, delta)
 	local entry, changed = M:Adjust(itemID, delta)
 	if not entry or not changed then

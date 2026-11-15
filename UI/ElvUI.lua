@@ -1,7 +1,7 @@
--- DropList - optional ElvUI skin + own appearance options
--- ElvUI is never required: if it is missing (or the player picks the classic
--- theme) the window keeps its plain Blizzard look. The accent color, opacity
--- and font size work in both themes.
+-- DropList - skin opcional de ElvUI + opciones de aspecto propias
+-- ElvUI no es obligatorio: si falta (o el jugador elige el tema clásico) la
+-- ventana mantiene el aspecto de Blizzard. El color de acento, la opacidad y
+-- el tamaño de fuente funcionan en ambos temas.
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -22,7 +22,7 @@ local ACCENT_PRESETS = {
 	gris = "a0a0a0",
 }
 
--- Returns ElvUI's engine table (ElvUI[1]) only when the skin can be used.
+-- Devuelve la tabla motor de ElvUI (ElvUI[1]) solo si se puede usar el skin.
 function DropList:GetElvUI()
 	if self:ThemeMode() == "classic" then
 		return nil
@@ -32,7 +32,7 @@ function DropList:GetElvUI()
 	if type(E) ~= "table" or type(E.GetModule) ~= "function" then
 		return nil
 	end
-	-- Media is filled at login; until then ElvUI's templates would use nils.
+	-- Los media se rellenan al iniciar sesión; hasta entonces las plantillas de ElvUI usarían nils.
 	if type(E.media) ~= "table" or type(E.media.bordercolor) ~= "table" then
 		return nil
 	end
@@ -61,7 +61,7 @@ function DropList:ThemeName()
 	return "clasico"
 end
 
--- Accent color ---------------------------------------------------------------
+-- Color de acento -------------------------------------------------------------
 
 function DropList:AccentColor()
 	local accent = self:Settings().accent
@@ -125,7 +125,7 @@ function DropList:SetAccent(r, g, b)
 	return true
 end
 
--- Opacity and font size ------------------------------------------------------
+-- Opacidad y tamaño de fuente -------------------------------------------------
 
 function DropList:FrameOpacity()
 	local value = tonumber(self:Settings().opacity)
@@ -147,8 +147,8 @@ function DropList:BaseFontSize()
 	return nil
 end
 
--- Works for FontStrings and EditBoxes. With no ElvUI and no custom size it
--- leaves the default font untouched.
+-- Funciona con FontStrings y EditBoxes. Sin ElvUI y sin tamaño personalizado
+-- deja la fuente por defecto intacta.
 function DropList:StyleFont(region, delta)
 	if not region or not region.GetFont or not region.SetFont then
 		return
@@ -215,7 +215,7 @@ function DropList:ApplyOpacity(value)
 		if not value then
 			return false
 		end
-		-- Allow both 0.85 and 85.
+		-- Acepta tanto 0.85 como 85.
 		if value > 1 then
 			value = value / 100
 		end
@@ -256,7 +256,7 @@ function DropList:ApplyThemeMode(mode)
 	return true, previous ~= mode
 end
 
--- Theme application ----------------------------------------------------------
+-- Aplicación del tema ---------------------------------------------------------
 
 function DropList:FrameBackground()
 	local E = self.themeActive and self:GetElvUI() or nil
@@ -274,7 +274,7 @@ function DropList:HookElvUIMedia(E)
 	self.hookedElvUIMedia = true
 	if hooksecurefunc and E.UpdateMedia then
 		hooksecurefunc(E, "UpdateMedia", function()
-			-- ElvUI changed fonts/textures/colors: refresh our window too.
+			-- ElvUI cambió fuentes/texturas/colores: se refresca también la ventana.
 			if DropList.main then
 				DropList:ApplyTheme()
 			end
@@ -316,7 +316,7 @@ function DropList:ApplyClassicSkin(f)
 	f:SetBackdropBorderColor(r, g, b, 1)
 end
 
--- ElvUI: flat panels, media fonts, skin module buttons and scrollbar.
+-- ElvUI: paneles planos, fuentes de media, botones del módulo de skin y scrollbar.
 function DropList:ApplyElvUISkin(f, E)
 	local S = E:GetModule("Skins")
 	local r, g, b = self:AccentColor()
@@ -433,7 +433,7 @@ function DropList:ApplyAccent()
 	self:SkinMinimapButton()
 end
 
--- Minimap button -------------------------------------------------------------
+-- Botón del minimapa -----------------------------------------------------------
 
 function DropList:SkinMinimapButton(button)
 	button = button or self.minimapButton

@@ -1,4 +1,4 @@
--- DropList - small UI toolkit (3.3.5 compatible, no libraries)
+-- DropList - utilidades de interfaz (compatible con 3.3.5, sin librerías)
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -137,7 +137,7 @@ function Widgets.Tooltip(owner, anchor)
 	return GameTooltip
 end
 
--- Simple reusable scrollable list with fixed row frames.
+-- Lista con scroll reutilizable y filas fijas.
 -- callbacks = { onCreateRow(row), onUpdateRow(row, data, index), onClick(row, data, mouseButton), onEnter(row, data), onLeave(row, data) }
 function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, callbacks)
 	local list = CreateFrame("Frame", nil, parent)
