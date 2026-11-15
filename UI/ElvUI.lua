@@ -198,9 +198,12 @@ function DropList:ApplyFonts()
 		for _, row in ipairs(f.itemList.rows) do
 			self:StyleFont(row.name, 0)
 			self:StyleFont(row.count, 0)
-			local fontString = row.remove and row.remove.GetFontString and row.remove:GetFontString()
-			if fontString then
-				self:StyleFont(fontString, 0)
+			for _, field in ipairs({ "remove", "plus", "minus" }) do
+				local button = row[field]
+				local fontString = button and button.GetFontString and button:GetFontString()
+				if fontString then
+					self:StyleFont(fontString, 0)
+				end
 			end
 		end
 	end
@@ -353,8 +356,11 @@ function DropList:ApplyElvUISkin(f, E)
 
 	if f.itemList then
 		for _, row in ipairs(f.itemList.rows) do
-			if row.remove and S and S.HandleButton then
-				pcall(S.HandleButton, S, row.remove)
+			for _, field in ipairs({ "remove", "plus", "minus" }) do
+				local button = row[field]
+				if button and S and S.HandleButton then
+					pcall(S.HandleButton, S, button)
+				end
 			end
 			local highlight = row.GetHighlightTexture and row:GetHighlightTexture()
 			if highlight then

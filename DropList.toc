@@ -6,7 +6,7 @@
 ## Notes-esES: Lista simple de objetos.
 ## Notes-esMX: Lista simple de objetos.
 ## Author: Sathaniel
-## Version: 0.4
+## Version: 0.5
 ## SavedVariables: DropListDB
 ## SavedVariablesPerCharacter: DropListCharDB
 ## OptionalDeps: ElvUI

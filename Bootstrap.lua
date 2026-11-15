@@ -6,7 +6,7 @@ if type(DropList) ~= "table" then
 end
 
 DropList.addonName = "DropList"
-DropList.version = "0.4"
+DropList.version = "0.5"
 DropList.author = "Sathaniel"
 
 -- Item quality colors (0..7), used all over the UI.

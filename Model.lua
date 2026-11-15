@@ -7,6 +7,8 @@ DropList.Model = Model
 
 local MAX_VALUE = 99999
 local MAX_UNDO = 30
+local MIN_COUNT = 1
+Model.MIN_COUNT = MIN_COUNT
 
 local function charDB()
 	return _G.DropListCharDB
@@ -87,10 +89,36 @@ function Model:Add(info)
 	if info.quality then entry.quality = info.quality end
 	if info.icon then entry.icon = info.icon end
 	if info.link then entry.link = info.link end
+	if info.itemType then entry.itemType = info.itemType end
+	if info.equipLoc then entry.equipLoc = info.equipLoc end
+	if info.maxStack then entry.maxStack = info.maxStack end
 	entry.updated = time()
 
 	pushUndo(undo)
 	return entry
+end
+
+-- Changes the count by delta (the row's - / + buttons). It is deliberately not
+-- an undoable action: Deshacer keeps undoing the last add, remove or clear.
+function Model:Adjust(itemID, delta)
+	itemID = tonumber(itemID)
+	local entry = itemID and charDB().entries[itemID]
+	if not entry then
+		return nil, false
+	end
+	delta = math.floor(tonumber(delta) or 0)
+	if delta == 0 then
+		return entry, false
+	end
+
+	local before = clampInt(entry.count or MIN_COUNT, MIN_COUNT, MAX_VALUE)
+	local count = clampInt(before + delta, MIN_COUNT, MAX_VALUE)
+	if count == before then
+		return entry, false
+	end
+	entry.count = count
+	entry.updated = time()
+	return entry, true
 end
 
 function Model:Remove(itemID)

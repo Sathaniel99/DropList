@@ -47,6 +47,28 @@ function DropList:RunSelfTest()
 		M:ClearAll()
 		check("clear empties the list", #M:EntryList({}) == 0)
 		check("undo restores the clear", M:Undo() == true and M:Get(1) ~= nil)
+
+		-- Row buttons: gear gets one button, countable items get X, + and -.
+		check("weapon is gear", DropList:ClassifyItem("INVTYPE_WEAPON", 1) == "equip")
+		check("trinket is gear", DropList:ClassifyItem("INVTYPE_TRINKET", 1) == "equip")
+		check("bag is gear", DropList:ClassifyItem("INVTYPE_BAG", 1) == "equip")
+		check("ammo is countable", DropList:ClassifyItem("INVTYPE_AMMO", 1000) == "stack")
+		check("material is countable", DropList:ClassifyItem("", 20) == "stack")
+		check("non-equip is countable", DropList:ClassifyItem("INVTYPE_NON_EQUIP", 1) == "stack")
+		check("no data is countable", DropList:ClassifyItem(nil, nil) == "stack")
+		check("unknown item keeps one button", DropList:IsEquipableEntry({}) == true)
+
+		-- + / -: clamped at 1 and not undoable.
+		local undoBefore = M:UndoCount()
+		M:Add({ itemID = 70001, name = "Contable", itemType = "stack" })
+		local adjustEntry, changed = M:Adjust(70001, 1)
+		check("plus raises the count", changed == true and adjustEntry.count == 2)
+		adjustEntry, changed = M:Adjust(70001, -1)
+		check("minus lowers the count", changed == true and adjustEntry.count == 1)
+		adjustEntry, changed = M:Adjust(70001, -1)
+		check("minus stops at one", changed == false and adjustEntry.count == 1)
+		check("plus and minus are not undoable", M:UndoCount() == undoBefore + 1)
+		check("countable entry keeps three buttons", DropList:IsEquipableEntry({ itemID = 70001, itemType = "stack" }) == false)
 	end)
 
 	_G.DropListCharDB = realDB

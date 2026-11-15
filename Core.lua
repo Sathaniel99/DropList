@@ -45,14 +45,23 @@ function DropList:ResolveItem(input)
 		return nil
 	end
 
-	local name, gameLink, quality, _, _, _, _, _, _, texture = GetItemInfo(itemID)
+	local name, gameLink, quality, _, _, class, subclass, maxStack, equipLoc, texture = GetItemInfo(itemID)
 	local data = {
 		itemID = itemID,
 		name = name,
 		link = link or gameLink,
 		quality = quality,
 		icon = texture,
+		class = class,
+		subclass = subclass,
+		maxStack = maxStack,
+		equipLoc = equipLoc,
 	}
+	-- Only classify when the client already knows the item: an uncached item
+	-- returns a name of nil and no type data.
+	if name then
+		data.itemType = self:ClassifyItem(equipLoc, maxStack)
+	end
 
 	if not data.name and link then
 		data.name = string.match(link, "|h%[(.-)%]|h")
@@ -76,12 +85,73 @@ function DropList:ResolveItem(input)
 	return data
 end
 
--- Fills in names/icons for items that were not cached when they were added.
+-- Item type: one row button for gear, three (X, +, -) for countable items ------
+-- 3.3.5 GetItemInfo returns:
+-- name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipLoc, texture
+-- Gear has a real equip slot and does not stack. Everything else (Marca de
+-- santificación, saronita, tokens de tier, materiales, munición...) is countable.
+
+local NON_EQUIP_LOCS = {
+	[""] = true,
+	["INVTYPE_NON_EQUIP"] = true,
+	["INVTYPE_NON_EQUIP_IGNORE"] = true,
+}
+
+-- Pure helper: equipLoc and maxStack as returned by GetItemInfo for a known item.
+function DropList:ClassifyItem(equipLoc, maxStack)
+	if type(equipLoc) ~= "string" or NON_EQUIP_LOCS[equipLoc] then
+		return "stack"
+	end
+	-- Ammo, thrown weapons and anything else that stacks is counted, not gear.
+	if (tonumber(maxStack) or 1) > 1 then
+		return "stack"
+	end
+	return "equip"
+end
+
+-- Reads the type from the client cache and remembers it in the entry, because
+-- 3.3.5 only knows items that are already in the client cache.
+function DropList:DetectItemType(entry)
+	if not entry or not entry.itemID then
+		return nil
+	end
+	local name, _, _, _, _, _, _, maxStack, equipLoc = GetItemInfo(entry.itemID)
+	if not name then
+		return nil
+	end
+	local itemType = self:ClassifyItem(equipLoc, maxStack)
+	entry.itemType = itemType
+	entry.equipLoc = equipLoc
+	entry.maxStack = maxStack
+	return itemType
+end
+
+-- While the client does not know the item, keep a single button.
+function DropList:IsEquipableEntry(entry)
+	if not entry then
+		return true
+	end
+	if entry.itemType == "equip" then
+		return true
+	end
+	if entry.itemType == "stack" then
+		return false
+	end
+	local itemType = self:DetectItemType(entry)
+	if itemType then
+		return itemType == "equip"
+	end
+	return true
+end
+
+-- Fills in names/icons and the item type for items that were not cached when
+-- they were added.
 function DropList:EnrichEntries()
 	local changed = false
 	for _, entry in pairs(M:Entries()) do
-		if isPlaceholderName(entry.name) or not entry.icon or not entry.link then
-			local name, link, quality, _, _, _, _, _, _, texture = GetItemInfo(entry.itemID)
+		local needsInfo = isPlaceholderName(entry.name) or not entry.icon or not entry.link
+		if needsInfo or not entry.itemType then
+			local name, link, quality, _, _, _, _, maxStack, equipLoc, texture = GetItemInfo(entry.itemID)
 			if name then
 				if isPlaceholderName(entry.name) then
 					entry.name = name
@@ -89,6 +159,11 @@ function DropList:EnrichEntries()
 				entry.link = entry.link or link
 				entry.quality = entry.quality or quality
 				entry.icon = entry.icon or texture
+				if not entry.itemType then
+					entry.itemType = self:ClassifyItem(equipLoc, maxStack)
+					entry.equipLoc = equipLoc
+					entry.maxStack = maxStack
+				end
 				changed = true
 			end
 		end
@@ -296,6 +371,9 @@ function DropList:AddItem(item, qty)
 		icon = item.icon,
 		link = item.link,
 		qty = qty,
+		itemType = item.itemType,
+		equipLoc = item.equipLoc,
+		maxStack = item.maxStack,
 	})
 	if not entry then
 		self:Print(L.InvalidItemShort, 1, 0.3, 0.3)

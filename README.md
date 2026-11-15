@@ -1,9 +1,9 @@
-# DropList 0.4
+# DropList 0.5
 
 Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Solo hace una cosa: **una lista de objetos**. Añades un objeto y la lista lleva la cuenta de cuántas veces lo has añadido. Sin bosses, sin instancias, sin dificultades.
 
 - **Autor:** Sathaniel
-- **Versión:** 0.4
+- **Versión:** 0.5
 - **Interface:** 30300
 - **Dependencias:** ninguna (Lua 5.1 puro). **ElvUI es opcional**: si está instalado, DropList usa su aspecto.
 - **Tema:** se adapta a ElvUI cuando lo detecta; también funciona con el aspecto clásico de Blizzard.
@@ -45,9 +45,24 @@ Si añades el **mismo objeto** otra vez, no se crea otra fila: se incrementa su 
 
 - **Buscar**: filtra por nombre o por ID.
 - **X** o **clic derecho** en una fila: quita el objeto.
-- **Deshacer**: recupera el último cambio (hasta 30).
+- **+ / −** en la fila: suben o bajan la cantidad de 1 en 1 (solo en objetos contables).
+- **Deshacer**: recupera el último añadido, quitado o vaciado (hasta 30). Los **+ / −** no entran en el historial.
 - **Vaciar**: borra toda la lista (pide confirmación y se puede deshacer).
 - **Tooltip**: pasa el ratón por una fila para ver el objeto y su contador.
+
+### Botones de cantidad
+
+El addon decide solo qué fila lleva tres botones, usando los datos del cliente (`equipLoc` y `maxStack` de `GetItemInfo`):
+
+| Objeto | Botones |
+|---|---|
+| Equipo con slot: armas, armaduras, abalorios, anillos, capas, reliquias, bolsas | **solo X** |
+| Contables: marcas y tokens de tier, materiales (saronita), gemas, patrones, comida, pociones, objetos de misión, munición | **X, +, −** |
+
+- En un objeto contable con **x1** se ven `[X] [+]`; el `[−]` aparece a partir de **x2**. Para quitar la fila se usa `[X]`.
+- La cantidad nunca baja de 1 con `[−]`.
+- Si el cliente todavía no conoce el objeto (fila `item:ID`), la fila muestra **solo X**; en cuanto el cliente lo conoce se clasifica sola y aparecen `+` y `−` si toca.
+- La clasificación se guarda con la entrada, así que se mantiene entre sesiones.
 
 ---
 
@@ -117,7 +132,9 @@ Las listas de la versión anterior (con boss y dificultad) se convierten solas: 
 3. Repite → sigue habiendo una fila con `x2`.
 4. Pasa el ratón por un objeto (con la ventana abierta verás `Se añadirá: ...`) y pulsa **Añadir** → se añade otra vez.
 5. Pulsa **X** en una fila → desaparece; pulsa **Deshacer** → vuelve.
-6. `/reload` → todo sigue ahí.
+6. Añade **49908** (Saronita primordial) o **47557** (Marca de santificación): la fila muestra `[X] [+]`, y `[−]` a partir de x2.
+7. Añade un arma o un abalorio: la fila muestra **solo X**.
+8. `/reload` → todo sigue ahí, con los mismos botones.
 7. Con ElvUI cargado, `/droplist theme` debe decir `detectado: ElvUI`; prueba `/droplist color dorado` y `/droplist opacity 0.85`.
 
 ---
@@ -130,7 +147,7 @@ DropList/
   Bootstrap.lua     namespace y colores de calidad
   Config.lua        defaults, SavedVariables y migración
   Localization.lua  textos en español
-  Model.lua         lista, contadores y deshacer
+  Model.lua         lista, contadores (+ / -) y deshacer
   UI/Widgets.lua    panel, botones, lista con scroll
   UI/ElvUI.lua      skin opcional de ElvUI y ajustes visuales
   UI/MainFrame.lua  ventana principal

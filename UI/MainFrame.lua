@@ -70,7 +70,7 @@ function DropList:CreateMainFrame()
 	f.itemHeader:SetText(L.Item)
 
 	f.countHeader = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	f.countHeader:SetPoint("TOPRIGHT", f, "TOPRIGHT", -64, -74)
+	f.countHeader:SetPoint("TOPRIGHT", f, "TOPRIGHT", -130, -74)
 	f.countHeader:SetText(L.Count)
 
 	f.itemList = W.List(f, "DropListItemScroll", 404, ROW_COUNT * ROW_HEIGHT, ROW_HEIGHT, ROW_COUNT, {
@@ -82,29 +82,48 @@ function DropList:CreateMainFrame()
 
 			row.name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 			row.name:SetPoint("LEFT", row, "LEFT", 38, 0)
-			row.name:SetWidth(230)
+			row.name:SetWidth(210)
 			row.name:SetJustifyH("LEFT")
 			row.name:SetWordWrap(false)
 
 			row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-			row.count:SetPoint("RIGHT", row, "RIGHT", -62, 0)
-			row.count:SetWidth(44)
+			row.count:SetPoint("RIGHT", row, "RIGHT", -80, 0)
+			row.count:SetWidth(40)
 			row.count:SetJustifyH("RIGHT")
 
-			row.remove = W.Button(row, "X", 20, 18, function(self)
+			-- Left to right: [X] [+] [-]. The - is only shown from x2 on, and
+			-- + / - are hidden for gear (one button, like before).
+			local function rowButton(offset, text, tooltip, onClick)
+				local button = W.Button(row, text, 20, 18, onClick)
+				button:SetPoint("RIGHT", row, "RIGHT", offset, 0)
+				button:SetScript("OnEnter", function(self)
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+					GameTooltip:SetText(tooltip)
+					GameTooltip:Show()
+				end)
+				button:SetScript("OnLeave", function()
+					GameTooltip:Hide()
+				end)
+				return button
+			end
+
+			row.remove = rowButton(-52, "X", L.Remove, function(self)
 				local entry = self:GetParent().data
 				if entry then
 					DropList:RemoveEntry(entry.itemID)
 				end
 			end)
-			row.remove:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-			row.remove:SetScript("OnEnter", function(self)
-				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-				GameTooltip:SetText(L.Remove)
-				GameTooltip:Show()
+			row.plus = rowButton(-28, "+", L.AddOne, function(self)
+				local entry = self:GetParent().data
+				if entry then
+					DropList:AdjustEntry(entry.itemID, 1)
+				end
 			end)
-			row.remove:SetScript("OnLeave", function()
-				GameTooltip:Hide()
+			row.minus = rowButton(-4, "-", L.RemoveOne, function(self)
+				local entry = self:GetParent().data
+				if entry then
+					DropList:AdjustEntry(entry.itemID, -1)
+				end
 			end)
 		end,
 		onUpdateRow = function(row, entry)
@@ -113,6 +132,18 @@ function DropList:CreateMainFrame()
 			row.icon:SetTexture(entry.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 			row.count:SetText("x" .. tostring(entry.count or 1))
 			row.selected:Hide()
+
+			local countable = not DropList:IsEquipableEntry(entry)
+			if countable then
+				row.plus:Show()
+			else
+				row.plus:Hide()
+			end
+			if countable and (tonumber(entry.count) or 1) > 1 then
+				row.minus:Show()
+			else
+				row.minus:Hide()
+			end
 		end,
 		onClick = function(_, entry, mouseButton)
 			if mouseButton == "RightButton" then
@@ -124,7 +155,11 @@ function DropList:CreateMainFrame()
 			GameTooltip:SetHyperlink(entry.link or ("item:" .. tostring(entry.itemID)))
 			GameTooltip:AddLine(" ")
 			GameTooltip:AddLine(string.format(L.Count .. ": %d", entry.count or 1), 1, 1, 1)
-			GameTooltip:AddLine(L.RowHint, 0.8, 0.8, 0.8)
+			if DropList:IsEquipableEntry(entry) then
+				GameTooltip:AddLine(L.RowHint, 0.8, 0.8, 0.8)
+			else
+				GameTooltip:AddLine(L.RowHintCount, 0.8, 0.8, 0.8)
+			end
 			GameTooltip:Show()
 		end,
 	})
@@ -210,6 +245,15 @@ function DropList:RemoveEntry(itemID)
 	end
 	self:Refresh()
 	self:Print(string.format(L.Removed, M:DisplayName(entry)), 0.8, 0.8, 0.8)
+end
+
+-- Row buttons - / +: silent (no chat spam) and not undoable.
+function DropList:AdjustEntry(itemID, delta)
+	local entry, changed = M:Adjust(itemID, delta)
+	if not entry or not changed then
+		return
+	end
+	self:Refresh()
 end
 
 function DropList:Refresh()
