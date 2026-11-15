@@ -7,6 +7,7 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Solo hace una 
 - **Interface:** 30300
 - **Dependencias:** ninguna (Lua 5.1 puro). **ElvUI es opcional**: si está instalado, DropList usa su aspecto.
 - **Tema:** se adapta a ElvUI cuando lo detecta; también funciona con el aspecto clásico de Blizzard.
+- **Categoría:** JcE & Enfrentamiento de Jefes (principal), Miscelánea (secundaria).
 
 ---
 

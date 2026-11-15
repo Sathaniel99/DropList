@@ -10,7 +10,7 @@
 ## SavedVariables: DropListDB
 ## SavedVariablesPerCharacter: DropListCharDB
 ## OptionalDeps: ElvUI
-## X-Category: Raid
+## X-Category: Boss Encounters
 ## IconTexture: Interface\Icons\INV_Misc_Bag_10
 ## DefaultState: enabled
 ## X-License: Apache-2.0
