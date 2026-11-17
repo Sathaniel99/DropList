@@ -20,6 +20,14 @@ local function isPlaceholderName(name)
 	return not name or name == "" or string.find(name, "^item:%d+$") ~= nil
 end
 
+local function isPlaceholderIcon(icon)
+	return not icon or icon == "" or icon == "Interface\\Icons\\INV_Misc_QuestionMark"
+end
+
+local function isBareLink(link)
+	return not link or string.find(link, "^item:%d+$") ~= nil
+end
+
 function DropList:QualityFromLink(link)
 	local hex = string.match(link or "", "|c(%x%x%x%x%x%x%x%x)")
 	return QUALITY_HEX[string.lower(hex or "")] or 1
@@ -144,21 +152,26 @@ function DropList:IsEquipableEntry(entry)
 	return true
 end
 
--- Completa nombres/iconos y el tipo de los objetos que no estaban en caché al
--- añadirlos.
+-- Completa nombres, iconos, calidad y el tipo de los objetos que no estaban en
+-- caché al añadirlos. Cuando el cliente ya conoce el objeto, sus datos mandan.
 function DropList:EnrichEntries()
 	local changed = false
 	for _, entry in pairs(M:Entries()) do
-		local needsInfo = isPlaceholderName(entry.name) or not entry.icon or not entry.link
-		if needsInfo or not entry.itemType then
+		local pending = isPlaceholderName(entry.name) or isPlaceholderIcon(entry.icon)
+			or isBareLink(entry.link) or not entry.itemType
+		if pending then
 			local name, link, quality, _, _, _, _, maxStack, equipLoc, texture = GetItemInfo(entry.itemID)
 			if name then
-				if isPlaceholderName(entry.name) then
-					entry.name = name
+				entry.name = name
+				if quality then
+					entry.quality = quality
 				end
-				entry.link = entry.link or link
-				entry.quality = entry.quality or quality
-				entry.icon = entry.icon or texture
+				if texture then
+					entry.icon = texture
+				end
+				if link and isBareLink(entry.link) then
+					entry.link = link
+				end
 				if not entry.itemType then
 					entry.itemType = self:ClassifyItem(equipLoc, maxStack)
 					entry.equipLoc = equipLoc
@@ -362,7 +375,11 @@ function DropList:AddItem(item, qty)
 	end
 	qty = math.floor(tonumber(qty) or 1)
 	if qty < 1 then qty = 1 end
-	if qty > 999 then qty = 999 end
+	local maxQty = M.MAX_VALUE or 99999
+	if qty > maxQty then
+		qty = maxQty
+		self:Print(string.format(L.QuantityClamped, maxQty), 1, 0.82, 0)
+	end
 
 	local entry = M:Add({
 		itemID = item.itemID,
@@ -544,6 +561,7 @@ function DropList:PrintHelp()
 	self:Print(L.HelpColor, 0.8, 0.8, 0.8)
 	self:Print(L.HelpOpacity, 0.8, 0.8, 0.8)
 	self:Print(L.HelpFontSize, 0.8, 0.8, 0.8)
+	self:Print(L.HelpTooltip, 0.8, 0.8, 0.8)
 	self:Print(L.HelpTest, 0.8, 0.8, 0.8)
 	self:Print(L.HelpDebug, 0.8, 0.8, 0.8)
 end
@@ -617,6 +635,12 @@ function DropList:CommandFontSize(rest)
 	end
 end
 
+function DropList:CommandTooltip()
+	local settings = self:Settings()
+	settings.tooltipButton = not settings.tooltipButton
+	self:Print(settings.tooltipButton and L.TooltipOn or L.TooltipOff, 0.8, 0.8, 0.8)
+end
+
 local function dispatchCommand(command, rest)
 	if command == "" then
 		DropList:Toggle()
@@ -642,6 +666,8 @@ local function dispatchCommand(command, rest)
 		DropList:CommandOpacity(rest)
 	elseif command == "fontsize" then
 		DropList:CommandFontSize(rest)
+	elseif command == "tooltip" then
+		DropList:CommandTooltip()
 	elseif command == "test" then
 		DropList:RunSelfTest()
 	elseif command == "debug" then
@@ -680,15 +706,15 @@ DropList.eventFrame = eventFrame
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 
-eventFrame:SetScript("OnEvent", function(_, event, arg1)
+eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
 	if event == "ADDON_LOADED" then
 		if arg1 == "DropList" then
 			DropList:InitDB()
-			DropList:EnrichEntries()
 		end
 	elseif event == "PLAYER_LOGIN" then
-		DropList:InitDB()
+		DropList:EnrichEntries()
 		DropList:HookTooltips()
 		if DropList:Settings().minimap then
 			DropList:CreateMinimapButton()
@@ -723,6 +749,14 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
 			DropList:ApplySkin()
 		end
 		DropList:SkinMinimapButton()
+	elseif event == "GET_ITEM_INFO_RECEIVED" then
+		-- El cliente acaba de cachear un objeto: se completa la fila sin esperar
+		-- a que el jugador vuelva a abrir la ventana.
+		if arg1 and DropList.Model:Get(arg1) and DropList:EnrichEntries() then
+			if DropList.main and DropList.main:IsShown() then
+				DropList:Refresh()
+			end
+		end
 	end
 end)
 

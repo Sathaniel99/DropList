@@ -36,15 +36,15 @@ local ACCOUNT_DEFAULTS = {
 		minimap = true,
 		minimapAngle = 210,
 		search = "",
-		-- Appearance (optional ElvUI skin + own tweaks, like Omen)
-		theme = "auto",
+		-- Aspecto: color de acento, opacidad y tipografía propios.
 		accent = { r = 0.41, g = 0.80, b = 0.94 },
 		opacity = 0.94,
 		fontSize = 0,
 		tooltipButton = true,
+		-- Calidades que muestran el botón Añadir en el tooltip, según esté solo o en grupo.
 		tooltipQualities = {
-		    solo = { [2]=true, [3]=true, [4]=true, [5]=true },
-		    group = { [3]=true, [4]=true, [5]=true },
+			solo = { [2] = true, [3] = true, [4] = true, [5] = true },
+			group = { [3] = true, [4] = true, [5] = true },
 		},
 	},
 }
@@ -53,8 +53,9 @@ local CHAR_DEFAULTS = {
 	version = SCHEMA,
 }
 
--- Old versions stored one row per item + boss + difficulty. Fold those into a
--- single row per item so nobody loses their list.
+-- Las versiones antiguas guardaban una fila por objeto, jefe y dificultad. Se
+-- agrupan en una sola fila, pero conservando todos los campos (tipo, equipo,
+-- pila y fecha) para no perder la clasificación ya calculada.
 local function normalizeEntries()
 	local entries = _G.DropListCharDB.entries
 	local normalized = {}
@@ -66,15 +67,17 @@ local function normalizeEntries()
 			local existing = normalized[itemID]
 			if existing then
 				existing.count = existing.count + count
+				for key, value in pairs(entry) do
+					if existing[key] == nil then
+						existing[key] = value
+					end
+				end
 			else
-				normalized[itemID] = {
-					itemID = itemID,
-					name = entry.name,
-					quality = entry.quality,
-					icon = entry.icon,
-					link = entry.link,
-					count = count,
-				}
+				local copy = DropList.Copy(entry)
+				copy.itemID = itemID
+				copy.count = count
+				copy.dropped = nil
+				normalized[itemID] = copy
 			end
 		end
 	end
@@ -82,10 +85,12 @@ local function normalizeEntries()
 end
 
 function DropList:InitDB()
+	local previousVersion = type(_G.DropListDB) == "table" and tonumber(_G.DropListDB.version) or 0
+	local charVersion = type(_G.DropListCharDB) == "table" and tonumber(_G.DropListCharDB.version) or 0
+
 	if type(_G.DropListDB) ~= "table" then
 		_G.DropListDB = {}
 	end
-	local previousVersion = tonumber(_G.DropListDB.version) or 0
 	mergeDefaults(_G.DropListDB, ACCOUNT_DEFAULTS)
 
 	if type(_G.DropListCharDB) ~= "table" then
@@ -101,8 +106,8 @@ function DropList:InitDB()
 	end
 
 	if previousVersion < SCHEMA then
-		-- Version 0.1 left a filter and raid settings behind. A stale filter is
-		-- the easiest way to think "the addon did not add anything".
+		-- La versión 0.1 dejó un filtro y ajustes de banda que ya no existen.
+		-- Un filtro antiguo es la forma más fácil de pensar que el addon no añade nada.
 		local settings = _G.DropListDB.settings
 		settings.search = ""
 		settings.raidScale = nil
@@ -113,13 +118,11 @@ function DropList:InitDB()
 		settings.selBossInstance = nil
 	end
 
-	-- Keep an unknown theme value from breaking the theme picker.
-	local theme = _G.DropListDB.settings.theme
-	if theme ~= "auto" and theme ~= "elvui" and theme ~= "classic" then
-		_G.DropListDB.settings.theme = "auto"
+	-- La migración se ejecuta una sola vez por personaje. Así no se borra en
+	-- cada login la clasificación que ya se había calculado.
+	if charVersion < SCHEMA then
+		normalizeEntries()
 	end
-
-	normalizeEntries()
 	_G.DropListCharDB.undo = {}
 	_G.DropListCharDB.version = SCHEMA
 	_G.DropListDB.version = SCHEMA
@@ -144,7 +147,7 @@ function DropList:Print(message, r, g, b)
 	)
 end
 
--- Trims leading/trailing whitespace from any value.
+-- Quita espacios al principio y al final de cualquier valor.
 function DropList.Trim(text)
 	text = tostring(text or "")
 	text = string.gsub(text, "^%s+", "")

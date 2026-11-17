@@ -8,6 +8,7 @@ DropList.Model = Model
 local MAX_VALUE = 99999
 local MAX_UNDO = 30
 local MIN_COUNT = 1
+Model.MAX_VALUE = MAX_VALUE
 Model.MIN_COUNT = MIN_COUNT
 
 local function charDB()

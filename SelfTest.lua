@@ -69,6 +69,33 @@ function DropList:RunSelfTest()
 		check("minus stops at one", changed == false and adjustEntry.count == 1)
 		check("plus and minus are not undoable", M:UndoCount() == undoBefore + 1)
 		check("countable entry keeps three buttons", DropList:IsEquipableEntry({ itemID = 70001, itemType = "stack" }) == false)
+
+		-- Migración: conserva la clasificación y no la borra en cada login.
+		_G.DropListCharDB = {
+			version = 0,
+			entries = {
+				[42] = {
+					itemID = 42,
+					name = "Prueba de migración",
+					count = 2,
+					itemType = "stack",
+					equipLoc = "INVTYPE_NON_EQUIP",
+					maxStack = 20,
+					updated = 123,
+				},
+			},
+			undo = {},
+		}
+		DropList:InitDB()
+		local migrated = M:Get(42)
+		check("migration keeps the item type", migrated and migrated.itemType == "stack")
+		check("migration keeps the max stack", migrated and migrated.maxStack == 20)
+		check("migration keeps the update time", migrated and migrated.updated == 123)
+		check("migration sets the schema", _G.DropListCharDB.version == 4)
+		migrated.itemType = "equip"
+		DropList:InitDB()
+		check("later logins keep the item type", M:Get(42) and M:Get(42).itemType == "equip")
+		check("model exports max value", M.MAX_VALUE == 99999)
 	end)
 
 	_G.DropListCharDB = realDB
