@@ -29,11 +29,11 @@ La cantidad nunca baja de 1 y los + / − no entran en el historial de Deshacer.
 URL_FOTO_3
 
 APARIENCIA
-- ElvUI es opcional: si está instalado usa sus plantillas, fuentes y colores; si no, el aspecto clásico de Blizzard.
-- Color de acento, opacidad y tamaño de fuente configurables sin tocar ElvUI.
+- Tema oscuro propio, sin librerías externas.
+- Color de acento, opacidad y tamaño de fuente configurables.
 - Botón en el minimapa y menú de clic derecho.
 
-[FOTO 4: DropList con ElvUI]
+[FOTO 4: aspecto oscuro de DropList]
 URL_FOTO_4
 
 COMANDOS
@@ -45,7 +45,7 @@ COMANDOS
 /droplist color dorado — color de acento
 /droplist opacity 0.85 — opacidad del fondo
 /droplist fontsize 14 — tamaño de fuente (0 = automático)
-/droplist theme auto|elvui|classic — aspecto de la ventana
+/droplist tooltip — mostrar u ocultar el botón Añadir en los tooltips
 /droplist minimap — mostrar u ocultar el botón del minimapa
 /droplist test — autocomprobación
 /droplist help — ayuda
@@ -59,7 +59,6 @@ Copia la carpeta DropList en World of Warcraft\Interface\AddOns\. Debe quedar ..
 REQUISITOS
 - World of Warcraft 3.3.5a (Interface 30300).
 - Sin dependencias: Lua 5.1 puro.
-- ElvUI opcional.
 - Interfaz en español.
 
 NOTAS

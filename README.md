@@ -7,8 +7,8 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Sin bosses, si
 - **Autor:** Sathaniel
 - **Versión:** 0.5
 - **Interface:** 30300
-- **Dependencias:** ninguna (Lua 5.1 puro). **ElvUI es opcional**: si está instalado, DropList usa su aspecto.
-- **Tema:** se adapta a ElvUI cuando lo detecta; también funciona con el aspecto clásico de Blizzard.
+- **Dependencias:** ninguna (Lua 5.1 puro).
+- **Aspecto:** tema oscuro propio, con color de acento, opacidad y tamaño de fuente configurables.
 - **Categoría:** JcE & Enfrentamiento de Jefes (principal), Miscelánea (secundaria).
 - **Idioma:** interfaz en español.
 
@@ -35,7 +35,7 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Sin bosses, si
 2. Entra al juego o escribe `/reload`.
 3. Abre la lista con `/droplist` o con el botón del minimapa.
 
-**Requisitos:** World of Warcraft 3.3.5a (Interface `30300`), sin librerías externas y con ElvUI opcional.
+**Requisitos:** World of Warcraft 3.3.5a (Interface `30300`), sin librerías externas.
 
 ---
 
@@ -53,6 +53,8 @@ Hay cuatro formas, todas llevan a lo mismo:
 4. **Arrastra** el objeto desde la mochila a la ventana o al botón **Añadir**.
 
 > El botón funciona igual que el comando: pasa el ratón por cualquier objeto (bolsa, equipo, botín, subasta, enlace del chat...) y pulsa **Añadir**. El addon guarda el último objeto mostrado en el tooltip, así que no importa que al mover el ratón al botón el tooltip desaparezca.
+>
+> El botón del enlace de objeto aparece para calidades poco común o superior en solitario, y raro o superior en grupo/raid. Se puede activar o desactivar con `/droplist tooltip`.
 
 Si añades el **mismo objeto** otra vez, no se crea otra fila: se incrementa su contador (`x2`, `x3`...).
 
@@ -97,7 +99,7 @@ El addon decide solo qué fila lleva tres botones, usando los datos del cliente 
 | `/droplist color <hex\|nombre>` | Color de acento (ej. `69ccf0`, `dorado`) |
 | `/droplist opacity 0.8` | Opacidad del fondo (0.1 – 1.0) |
 | `/droplist fontsize 12` | Tamaño de fuente (8 – 24; `0` = automático) |
-| `/droplist theme auto\|elvui\|classic` | Aspecto de la ventana (`/reload` al cambiar) |
+| `/droplist tooltip` | Mostrar u ocultar el botón Añadir en los tooltips |
 | `/droplist test` | Autocomprobación del addon |
 | `/droplist debug` | Diagnóstico rápido (último tooltip, enlace del chat, nº de entradas) |
 | `/droplist help` | Ayuda |
@@ -106,24 +108,22 @@ También `/dlist`.
 
 ---
 
-## Aspecto (ElvUI + personalización)
+## Aspecto
 
-DropList detecta **ElvUI** automáticamente y, si está cargado, aplica su estilo: plantillas planas, fuentes y colores de ElvUI, botones, caja de búsqueda, barra de desplazamiento, botón de cerrar y botón del minimapa. Si ElvUI no está, usa el aspecto clásico sin romper nada.
+DropList usa un tema oscuro propio. El color de acento se aplica al título, las cabeceras, el borde de la ventana, el buscador y el borde del botón del minimapa.
 
-Además puedes personalizar el addon sin tocar ElvUI:
-
-- **Color de acento**: título, cabeceras, borde de la ventana y selección de filas. Acepta un hex (`/droplist color 336699`) o un nombre: `azul`, `cian`, `verde`, `rojo`, `dorado`, `morado`, `rosa`, `naranja`, `blanco`, `gris`.
+- **Color de acento**: acepta un hex (`/droplist color 336699`) o un nombre: `azul`, `cian`, `verde`, `rojo`, `dorado`, `morado`, `rosa`, `naranja`, `blanco`, `gris`.
 - **Opacidad del fondo**: `/droplist opacity 0.85` (también acepta `85`).
-- **Tamaño de fuente**: `/droplist fontsize 14`; `0` vuelve a usar el tamaño de ElvUI (o el de Blizzard si no hay ElvUI).
-- **Tema**: `/droplist theme auto` (por defecto, usa ElvUI si existe), `elvui` o `classic`. Al cambiar de tema hace falta `/reload`.
+- **Tamaño de fuente**: `/droplist fontsize 14`; `0` vuelve al tamaño por defecto.
+- **Botón en tooltips**: `/droplist tooltip` activa o desactiva el botón Añadir de los enlaces de objeto.
 
-El menú del **clic derecho** en el botón del minimapa también incluye **Tema** y **Color de acento**.
+El menú del **clic derecho** en el botón del minimapa también incluye **Botón del minimapa**, **Botón en tooltips** y **Color de acento**.
 
 ---
 
 ## Datos guardados
 
-- Preferencias (escala, minimapa, búsqueda, posición, tema, color, opacidad y fuente): cuenta.
+- Preferencias (escala, minimapa, búsqueda, posición, color, opacidad, fuente y botón de tooltip): cuenta.
   `WTF\Account\<cuenta>\SavedVariables\DropList.lua`
 - Lista de objetos: por personaje.
   `WTF\Account\<cuenta>\<servidor>\<personaje>\SavedVariables\DropList.lua`
@@ -152,7 +152,7 @@ Las listas de la versión anterior (con boss y dificultad) se convierten solas: 
 6. Añade **49908** (Saronita primordial) o **47557** (Marca de santificación): la fila muestra `[X] [+]`, y `[−]` a partir de x2.
 7. Añade un arma o un abalorio: la fila muestra **solo X**.
 8. `/reload` → todo sigue ahí, con los mismos botones.
-9. Con ElvUI cargado, `/droplist theme` debe decir `detectado: ElvUI`; prueba `/droplist color dorado` y `/droplist opacity 0.85`.
+9. Prueba `/droplist color dorado`, `/droplist opacity 0.85` y `/droplist fontsize 14`; después `/droplist fontsize 0` debe devolver las fuentes a su tamaño original.
 
 ---
 
@@ -165,10 +165,11 @@ DropList/
   Config.lua        defaults, SavedVariables y migración
   Localization.lua  textos en español
   Model.lua         lista, contadores (+ / -) y deshacer
-  UI/Widgets.lua    panel, botones, lista con scroll
-  UI/ElvUI.lua      skin opcional de ElvUI y ajustes visuales
+  UI/Widgets.lua    panel, botones, lista con scroll y buscador
+  UI/Skin.lua       tema oscuro, color de acento y tipografía
   UI/MainFrame.lua  ventana principal
   Minimap.lua       botón del minimapa
+  TooltipButton.lua botón Añadir en el tooltip del chat
   SelfTest.lua      /droplist test
   Core.lua          objetos, hooks, comandos y eventos
 ```
