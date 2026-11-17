@@ -106,12 +106,15 @@ function DropList:StyleFont(region, delta)
 	if not region or not region.GetFont or not region.SetFont then
 		return
 	end
-	local path, _, flags = region:GetFont()
-	local base = self:BaseFontSize()
-	if not base or not path then
+	local path, current, flags = region:GetFont()
+	if not region.dropListBaseSize then
+		region.dropListBaseSize = current or 12
+	end
+	if not path then
 		return
 	end
-	local size = base + (delta or 0)
+	local base = self:BaseFontSize()
+	local size = base and (base + (delta or 0)) or region.dropListBaseSize
 	size = max(6, min(32, size))
 	region:SetFont(path, size, flags or "")
 end
@@ -168,6 +171,9 @@ function DropList:ApplyOpacity(value)
 	local f = self.main
 	if f then
 		f:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+		if f.search and f.search.SetBackdropColor then
+			f.search:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+		end
 	end
 	return true
 end
@@ -202,6 +208,9 @@ function DropList:ApplySkin()
 	local r, g, b = self:AccentColor()
 	f:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
 	f:SetBackdropBorderColor(r, g, b, 1)
+	if f.search and f.search.SetBackdropColor then
+		f.search:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+	end
 
 	self:ApplyAccent()
 	self:ApplyFonts()
@@ -251,14 +260,6 @@ function DropList:ApplyAccent()
 		end
 	end
 
-	if f.itemList then
-		for _, row in ipairs(f.itemList.rows) do
-			if row.selected then
-				row.selected:SetVertexColor(r, g, b, 0.16)
-			end
-		end
-	end
-
 	self:SkinMinimapButton()
 end
 
@@ -272,8 +273,6 @@ function DropList:SkinMinimapButton(button)
 	local r, g, b = self:AccentColor()
 	if button.border then
 		button.border:Show()
-	end
-	if button.SetBackdropBorderColor then
-		button:SetBackdropBorderColor(r, g, b, 1)
+		button.border:SetVertexColor(r, g, b, 1)
 	end
 end

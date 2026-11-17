@@ -24,7 +24,13 @@ function DropList:CreateMainFrame()
 	end)
 	-- Red de seguridad: con la ventana abierta se mantiene a la vista el último
 	-- objeto del tooltip, aunque otro addon reemplace el callback OnTooltipSetItem.
-	f:SetScript("OnUpdate", function()
+	-- Se consulta cada 0,2 s en vez de en cada fotograma.
+	f:SetScript("OnUpdate", function(self, elapsed)
+		self.dropListTooltipElapsed = (self.dropListTooltipElapsed or 0) + (elapsed or 0)
+		if self.dropListTooltipElapsed < 0.2 then
+			return
+		end
+		self.dropListTooltipElapsed = 0
 		local tooltip = GameTooltip
 		if not tooltip or not tooltip.IsShown or not tooltip:IsShown() then
 			return
@@ -50,7 +56,7 @@ function DropList:CreateMainFrame()
 	search:SetPoint("TOP", f, "TOP", 0, -40)
 
 	search.placeholder = search:CreateFontString(nil, "OVERLAY", "GameFontDisable")
-	search.placeholder:SetPoint("LEFT", search, "LEFT", 6, 0)
+	search.placeholder:SetPoint("LEFT", search, "LEFT", 10, 0)
 	search.placeholder:SetText(L.Search)
 	search.placeholder:SetJustifyH("LEFT")
 
@@ -145,7 +151,6 @@ function DropList:CreateMainFrame()
 			row.name:SetTextColor(DropList:GetQualityColor(entry.quality))
 			row.icon:SetTexture(entry.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 			row.count:SetText("x" .. tostring(entry.count or 1))
-			row.selected:Hide()
 
 			local countable = not DropList:IsEquipableEntry(entry)
 			if countable then

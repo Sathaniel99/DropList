@@ -14,6 +14,16 @@ Widgets.Backdrop = {
 	insets = { left = 8, right = 8, top = 8, bottom = 8 },
 }
 
+-- Fondo más fino para la caja de búsqueda.
+Widgets.InputBackdrop = {
+	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+	tile = true,
+	tileSize = 16,
+	edgeSize = 12,
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
+}
+
 function Widgets.Panel(name, width, height, title, closeOnEscape)
 	local frame = CreateFrame("Frame", name, UIParent)
 	frame:SetSize(width, height)
@@ -69,29 +79,17 @@ function Widgets.Button(parent, text, width, height, onClick)
 	return button
 end
 
-function Widgets.Checkbox(parent, label, checked, onClick)
-	local box = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
-	box:SetSize(24, 24)
-	box:SetChecked(checked and true or false)
-	box:SetScript("OnClick", function(self)
-		if onClick then
-			onClick(self, self:GetChecked() and true or false)
-		end
-	end)
-	if label then
-		local text = box:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		text:SetPoint("LEFT", box, "RIGHT", 2, 0)
-		text:SetText(label)
-	end
-	return box
-end
-
 function Widgets.EditBox(parent, width, height, maxLetters)
-	local box = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
+	local box = CreateFrame("EditBox", nil, parent)
 	box:SetSize(width or 120, height or 20)
 	box:SetAutoFocus(false)
 	box:SetMaxLetters(maxLetters or 200)
 	box:EnableMouse(true)
+	box:SetBackdrop(Widgets.InputBackdrop)
+	box:SetBackdropColor(0.03, 0.03, 0.05, 0.94)
+	box:SetBackdropBorderColor(0.55, 0.55, 0.60, 1)
+	box:SetTextInsets(8, 8, 0, 0)
+	box.backdrop = box
 	if ChatFontNormal then
 		box:SetFontObject(ChatFontNormal)
 	end
@@ -104,37 +102,6 @@ function Widgets.EditBox(parent, width, height, maxLetters)
 		self:ClearFocus()
 	end)
 	return box
-end
-
-function Widgets.Dropdown(parent, name, width)
-	local dropdown = CreateFrame("Frame", name, parent, "UIDropDownMenuTemplate")
-	if width then
-		UIDropDownMenu_SetWidth(dropdown, width)
-	end
-	return dropdown
-end
-
-function Widgets.SetDropdown(dropdown, text)
-	UIDropDownMenu_SetText(dropdown, text or "")
-end
-
-function Widgets.Menu(dropdown, items, anchorName)
-	EasyMenu(items, dropdown, anchorName or dropdown:GetName(), 0, 0, "MENU")
-end
-
-function Widgets.Separator(parent, inset)
-	local line = parent:CreateTexture(nil, "ARTWORK")
-	line:SetTexture("Interface\\Buttons\\WHITE8X8")
-	line:SetVertexColor(1, 1, 1, 0.12)
-	line:SetHeight(1)
-	line:SetPoint("LEFT", parent, "LEFT", inset or 8, 0)
-	line:SetPoint("RIGHT", parent, "RIGHT", -(inset or 8), 0)
-	return line
-end
-
-function Widgets.Tooltip(owner, anchor)
-	GameTooltip:SetOwner(owner, anchor or "ANCHOR_RIGHT")
-	return GameTooltip
 end
 
 -- Lista con scroll reutilizable y filas fijas.
@@ -184,13 +151,6 @@ function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, cal
 			highlight:SetBlendMode("ADD")
 			highlight:SetAlpha(0.35)
 		end
-
-		local selected = row:CreateTexture(nil, "BACKGROUND")
-		selected:SetTexture("Interface\\Buttons\\WHITE8X8")
-		selected:SetVertexColor(0.4, 0.7, 1, 0.16)
-		selected:SetAllPoints(row)
-		selected:Hide()
-		row.selected = selected
 
 		row:SetScript("OnClick", function(self, mouseButton)
 			if self.data and list.callbacks.onClick then

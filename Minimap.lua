@@ -110,7 +110,10 @@ function DropList:ShowMinimapMenu()
 			{ text = L.MenuScale .. " 1.0", notCheckable = true, func = function() DropList:ApplyScale(1.0) end },
 			{ text = L.MenuScale .. " 1.2", notCheckable = true, func = function() DropList:ApplyScale(1.2) end },
 		} },
-		{ text = L.MenuMinimap, notCheckable = true, func = function() DropList:SetMinimapVisible(false) end },
+		{ text = L.MenuMinimap, checked = self:Settings().minimap, isNotRadio = true,
+			func = function() DropList:SetMinimapVisible(not DropList:Settings().minimap) end },
+		{ text = L.MenuTooltip, checked = self:Settings().tooltipButton, isNotRadio = true,
+			func = function() DropList:CommandTooltip() end },
 		{ text = L.MenuColor, hasArrow = true, notCheckable = true, menuList = {
 			{ text = "Azul", notCheckable = true, func = function() DropList:CommandColor("azul") end },
 			{ text = "Cian", notCheckable = true, func = function() DropList:CommandColor("cian") end },
