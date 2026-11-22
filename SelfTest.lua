@@ -39,6 +39,19 @@ function DropList:RunSelfTest()
 		check("undo available", M:Undo() == true)
 		check("undo removes the last add", M:Get(47557) == nil)
 
+		-- Filtro por tipo: los objetos sin clasificar cuentan como equipo.
+		M:Add({ itemID = 71001, name = "Flecha", itemType = "stack" })
+		check("filter equip", #M:EntryList({ itemType = "equip" }) == 1)
+		check("filter stack", #M:EntryList({ itemType = "stack" }) == 1)
+		check("filter all", #M:EntryList({ itemType = "all" }) == 2)
+		check("filter combines with search", #M:EntryList({ text = "saronita", itemType = "stack" }) == 0)
+		M:Remove(71001)
+
+		local previousFilter = DropList:Settings().filter
+		check("set filter valid", DropList:SetFilter("equip") == true and DropList:Settings().filter == "equip")
+		check("set filter invalid", DropList:SetFilter("no existe") == false and DropList:Settings().filter == "equip")
+		DropList:SetFilter(previousFilter or "all")
+
 		local removed, entry = M:Remove(49908)
 		check("remove returns the entry", removed and entry and entry.itemID == 49908)
 		check("remove deletes it", M:Get(49908) == nil)
@@ -96,6 +109,11 @@ function DropList:RunSelfTest()
 		DropList:InitDB()
 		check("later logins keep the item type", M:Get(42) and M:Get(42).itemType == "equip")
 		check("model exports max value", M.MAX_VALUE == 99999)
+
+		-- Paletas propias: nombres normalizados y rechazo de desconocidas.
+		check("known palette", DropList:IsValidPalette("obsidiana") == true)
+		check("palette ignores case", DropList:IsValidPalette("CIAN") == true)
+		check("unknown palette", DropList:IsValidPalette("inexistente") == false)
 	end)
 
 	_G.DropListCharDB = realDB
