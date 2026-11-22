@@ -8,7 +8,7 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Sin bosses, si
 - **Versión:** 0.5
 - **Interface:** 30300
 - **Dependencias:** ninguna (Lua 5.1 puro).
-- **Aspecto:** tema oscuro propio, con color de acento, opacidad y tamaño de fuente configurables.
+- **Aspecto:** tema oscuro propio, cinco paletas, color de acento, opacidad y tamaño de fuente configurables.
 - **Categoría:** JcE & Enfrentamiento de Jefes (principal), Miscelánea (secundaria).
 - **Idioma:** interfaz en español.
 
@@ -21,6 +21,9 @@ Addon para **World of Warcraft 3.3.5a** (Wrath of the Lich King). Sin bosses, si
 - **Botones por fila**: `[X]` para quitar y `[+]` / `[−]` para ajustar la cantidad de 1 en 1.
 - **Deshacer** el último añadido, quitado o vaciado (hasta 30 pasos).
 - **Buscador** por nombre o por ID.
+- **Filtros** por tipo: todo, equipo y objetos contables.
+- **Filas con calidad**: barra lateral e icono del objeto, con franjas alternas para leer mejor la lista.
+- **Ventana redimensionable** y columnas ajustables arrastrando sus separadores.
 - **Datos por personaje** y preferencias por cuenta.
 
 ---
@@ -63,6 +66,7 @@ Si añades el **mismo objeto** otra vez, no se crea otra fila: se incrementa su 
 ## La lista
 
 - **Buscar**: filtra por nombre o por ID.
+- **Filtros**: `Todo`, `Equipo` y `Objetos` (los objetos sin clasificar cuentan como equipo). Se combinan con el buscador.
 - **X** o **clic derecho** en una fila: quita el objeto.
 - **+ / −** en la fila: suben o bajan la cantidad de 1 en 1 (solo en objetos contables).
 - **Deshacer**: recupera el último añadido, quitado o vaciado (hasta 30). Los **+ / −** no entran en el historial.
@@ -100,6 +104,8 @@ El addon decide solo qué fila lleva tres botones, usando los datos del cliente 
 | `/droplist opacity 0.8` | Opacidad del fondo (0.1 – 1.0) |
 | `/droplist fontsize 12` | Tamaño de fuente (8 – 24; `0` = automático) |
 | `/droplist tooltip` | Mostrar u ocultar el botón Añadir en los tooltips |
+| `/droplist filter all\|equip\|stack` | Filtrar la lista por tipo |
+| `/droplist palette <nombre>` | Paleta de colores de la interfaz |
 | `/droplist test` | Autocomprobación del addon |
 | `/droplist debug` | Diagnóstico rápido (último tooltip, enlace del chat, nº de entradas) |
 | `/droplist help` | Ayuda |
@@ -110,20 +116,22 @@ También `/dlist`.
 
 ## Aspecto
 
-DropList usa un tema oscuro propio. El color de acento se aplica al título, las cabeceras, el borde de la ventana, el buscador y el borde del botón del minimapa.
+DropList usa un tema oscuro propio. El color de acento se aplica al título, las cabeceras, el borde de la ventana, el buscador, las filas y el botón del minimapa.
 
-- **Color de acento**: acepta un hex (`/droplist color 336699`) o un nombre: `azul`, `cian`, `verde`, `rojo`, `dorado`, `morado`, `rosa`, `naranja`, `blanco`, `gris`.
+- **Paletas**: `/droplist palette obsidiana|cuero|cian|dorado|esmeralda`. Cada paleta cambia el fondo y el acento a la vez.
+- **Color de acento**: acepta un hex (`/droplist color 336699`) o un nombre: `azul`, `cian`, `verde`, `rojo`, `dorado`, `morado`, `rosa`, `naranja`, `blanco`, `gris`. Ajustarlo a mano marca la paleta como `personalizado`.
 - **Opacidad del fondo**: `/droplist opacity 0.85` (también acepta `85`).
 - **Tamaño de fuente**: `/droplist fontsize 14`; `0` vuelve al tamaño por defecto.
 - **Botón en tooltips**: `/droplist tooltip` activa o desactiva el botón Añadir de los enlaces de objeto.
+- **Tamaño y columnas**: arrastra la esquina inferior derecha para redimensionar (440–760 × 380–820) y los separadores de `Objeto` / `Cant.` para ajustar el ancho.
 
-El menú del **clic derecho** en el botón del minimapa también incluye **Botón del minimapa**, **Botón en tooltips** y **Color de acento**.
+El menú del **clic derecho** en el botón del minimapa también incluye **Paleta**, **Botón del minimapa**, **Botón en tooltips** y **Color de acento**.
 
 ---
 
 ## Datos guardados
 
-- Preferencias (escala, minimapa, búsqueda, posición, color, opacidad, fuente y botón de tooltip): cuenta.
+- Preferencias (escala, minimapa, búsqueda, posición, paleta, color, opacidad, fuente, filtro, tamaño, columnas y botón de tooltip): cuenta.
   `WTF\Account\<cuenta>\SavedVariables\DropList.lua`
 - Lista de objetos: por personaje.
   `WTF\Account\<cuenta>\<servidor>\<personaje>\SavedVariables\DropList.lua`
@@ -152,7 +160,8 @@ Las listas de la versión anterior (con boss y dificultad) se convierten solas: 
 6. Añade **49908** (Saronita primordial) o **47557** (Marca de santificación): la fila muestra `[X] [+]`, y `[−]` a partir de x2.
 7. Añade un arma o un abalorio: la fila muestra **solo X**.
 8. `/reload` → todo sigue ahí, con los mismos botones.
-9. Prueba `/droplist color dorado`, `/droplist opacity 0.85` y `/droplist fontsize 14`; después `/droplist fontsize 0` debe devolver las fuentes a su tamaño original.
+9. Prueba `/droplist palette esmeralda`, `/droplist filter equip`, `/droplist color dorado`, `/droplist opacity 0.85` y `/droplist fontsize 14`; después `/droplist fontsize 0` debe devolver las fuentes a su tamaño original.
+10. Redimensiona la ventana desde la esquina y arrastra los separadores de columnas; `/reload` debe conservar el tamaño y los anchos.
 
 ---
 
