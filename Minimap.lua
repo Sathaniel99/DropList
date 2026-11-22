@@ -37,6 +37,13 @@ function DropList:CreateMinimapButton()
 	border:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
 	button.border = border
 
+	local glow = button:CreateTexture(nil, "OVERLAY")
+	glow:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
+	glow:SetBlendMode("ADD")
+	glow:SetSize(40, 40)
+	glow:SetPoint("CENTER", button, "CENTER", 0, 0)
+	button.glow = glow
+
 	local icon = button:CreateTexture(nil, "BACKGROUND")
 	icon:SetTexture("Interface\\Icons\\INV_Misc_Bag_10")
 	icon:SetSize(20, 20)
@@ -114,6 +121,18 @@ function DropList:ShowMinimapMenu()
 			func = function() DropList:SetMinimapVisible(not DropList:Settings().minimap) end },
 		{ text = L.MenuTooltip, checked = self:Settings().tooltipButton, isNotRadio = true,
 			func = function() DropList:CommandTooltip() end },
+		{ text = L.MenuPalette, hasArrow = true, notCheckable = true, menuList = {
+			{ text = "Obsidiana", checked = self:Settings().palette == "obsidiana",
+				func = function() DropList:ApplyPalette("obsidiana") end },
+			{ text = "Cuero", checked = self:Settings().palette == "cuero",
+				func = function() DropList:ApplyPalette("cuero") end },
+			{ text = "Cian", checked = self:Settings().palette == "cian",
+				func = function() DropList:ApplyPalette("cian") end },
+			{ text = "Dorado", checked = self:Settings().palette == "dorado",
+				func = function() DropList:ApplyPalette("dorado") end },
+			{ text = "Esmeralda", checked = self:Settings().palette == "esmeralda",
+				func = function() DropList:ApplyPalette("esmeralda") end },
+		} },
 		{ text = L.MenuColor, hasArrow = true, notCheckable = true, menuList = {
 			{ text = "Azul", notCheckable = true, func = function() DropList:CommandColor("azul") end },
 			{ text = "Cian", notCheckable = true, func = function() DropList:CommandColor("cian") end },

@@ -166,7 +166,13 @@ function Model:UndoCount()
 	return #charDB().undo
 end
 
--- filter = { text }
+-- Los objetos sin clasificar se tratan como equipo, igual que hace la interfaz
+-- mientras el cliente no tiene el objeto en caché.
+local function entryType(entry)
+	return entry.itemType == "stack" and "stack" or "equip"
+end
+
+-- filter = { text, itemType }
 function Model:EntryList(filter)
 	filter = filter or {}
 	local text = filter.text and string.lower(filter.text) or nil
@@ -180,6 +186,10 @@ function Model:EntryList(filter)
 			if not string.find(hay, text, 1, true) then
 				ok = false
 			end
+		end
+		if ok and filter.itemType and filter.itemType ~= "all"
+			and entryType(entry) ~= filter.itemType then
+			ok = false
 		end
 		if ok then
 			table.insert(out, entry)

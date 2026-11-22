@@ -398,6 +398,9 @@ function DropList:AddItem(item, qty)
 	end
 
 	self:Refresh()
+	if self.FlashAddButton then
+		self:FlashAddButton()
+	end
 	self:Print(string.format(L.AddedDetail, M:DisplayName(entry), qty, entry.count or qty), 0.4, 1, 0.4)
 	return entry
 end
@@ -562,6 +565,8 @@ function DropList:PrintHelp()
 	self:Print(L.HelpOpacity, 0.8, 0.8, 0.8)
 	self:Print(L.HelpFontSize, 0.8, 0.8, 0.8)
 	self:Print(L.HelpTooltip, 0.8, 0.8, 0.8)
+	self:Print(L.HelpFilter, 0.8, 0.8, 0.8)
+	self:Print(L.HelpPalette, 0.8, 0.8, 0.8)
 	self:Print(L.HelpTest, 0.8, 0.8, 0.8)
 	self:Print(L.HelpDebug, 0.8, 0.8, 0.8)
 end
@@ -641,6 +646,48 @@ function DropList:CommandTooltip()
 	self:Print(settings.tooltipButton and L.TooltipOn or L.TooltipOff, 0.8, 0.8, 0.8)
 end
 
+-- Filtro por tipo de objeto. La vista usa este valor al pedirle filas al modelo.
+function DropList:SetFilter(value)
+	value = string.lower(DropList.Trim(value or ""))
+	if value ~= "all" and value ~= "equip" and value ~= "stack" then
+		return false
+	end
+	self:Settings().filter = value
+	self:Refresh()
+	if self.UpdateFilterButtons then
+		self:UpdateFilterButtons()
+	end
+	return true
+end
+
+function DropList:CommandFilter(rest)
+	local value = DropList.Trim(rest)
+	if value == "" then
+		self:Print(string.format(L.FilterSet, tostring(self:Settings().filter or "all")), 0.8, 0.8, 0.8)
+		return
+	end
+	if self:SetFilter(value) then
+		self:Print(string.format(L.FilterSet, self:Settings().filter), 0.8, 0.8, 0.8)
+	else
+		self:Print(L.FilterInvalid)
+	end
+end
+
+function DropList:CommandPalette(rest)
+	local name = string.lower(DropList.Trim(rest))
+	if name == "" then
+		self:Print(string.format(L.PaletteSet, tostring(self:Settings().palette or "obsidiana")), 0.8, 0.8, 0.8)
+		self:Print(L.PaletteHelp, 0.8, 0.8, 0.8)
+		return
+	end
+	if self:IsValidPalette(name) and self:ApplyPalette(name) then
+		self:Print(string.format(L.PaletteSet, name), 0.8, 0.8, 0.8)
+	else
+		self:Print(string.format(L.PaletteInvalid, name), 1, 0.82, 0)
+		self:Print(L.PaletteHelp, 0.8, 0.8, 0.8)
+	end
+end
+
 local function dispatchCommand(command, rest)
 	if command == "" then
 		DropList:Toggle()
@@ -668,6 +715,10 @@ local function dispatchCommand(command, rest)
 		DropList:CommandFontSize(rest)
 	elseif command == "tooltip" then
 		DropList:CommandTooltip()
+	elseif command == "filter" then
+		DropList:CommandFilter(rest)
+	elseif command == "palette" then
+		DropList:CommandPalette(rest)
 	elseif command == "test" then
 		DropList:RunSelfTest()
 	elseif command == "debug" then

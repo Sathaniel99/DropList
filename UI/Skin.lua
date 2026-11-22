@@ -1,5 +1,5 @@
--- DropList - skin único (clásico de Blizzard) + opciones de aspecto propias
--- Fondo oscuro, borde del color de acento, opacidad y tamaño de fuente.
+-- DropList - skin único: paletas, acento, opacidad, tipografía y adornos
+-- Todo se dibuja con texturas del cliente base, sin dependencias externas.
 local DropList = _G.DropList or {}
 _G.DropList = DropList
 
@@ -20,7 +20,17 @@ local ACCENT_PRESETS = {
 	gris = "a0a0a0",
 }
 
--- Color de acento -------------------------------------------------------------
+-- Color y fondo ----------------------------------------------------------------
+
+function DropList:FrameBackground()
+	local background = self:Settings() and self:Settings().background
+	if type(background) == "table" then
+		return tonumber(background.r) or 0.03,
+			tonumber(background.g) or 0.03,
+			tonumber(background.b) or 0.05
+	end
+	return 0.03, 0.03, 0.05
+end
 
 function DropList:AccentColor()
 	local accent = self:Settings().accent
@@ -79,8 +89,26 @@ function DropList:SetAccent(r, g, b)
 	end
 	r, g, b = max(0, min(1, r)), max(0, min(1, g)), max(0, min(1, b))
 	self:Settings().accent = { r = r, g = g, b = b }
+	self:Settings().palette = "personalizado"
 	self.Colors.accent = { r, g, b }
 	self:ApplyAccent()
+	return true
+end
+
+-- Aplica una paleta completa (fondo + acento). La paleta personalizada conserva
+-- lo que el jugador haya ajustado a mano.
+function DropList:ApplyPalette(name)
+	name = string.lower(tostring(name or ""))
+	if not self:IsValidPalette(name) then
+		return false
+	end
+	local palette = DropList.PALETTES[name]
+	local settings = self:Settings()
+	settings.palette = name
+	settings.background = DropList.Copy(palette.bg)
+	settings.accent = DropList.Copy(palette.accent)
+	self.Colors.accent = DropList.Copy(palette.accent)
+	self:ApplySkin()
 	return true
 end
 
@@ -133,12 +161,13 @@ function DropList:ApplyFonts()
 	self:StyleFont(f.hint, -1)
 	self:StyleFont(f.lastItem, -1)
 
-	local buttonFields = { "addButton", "undoButton", "clearButton", "hideButton" }
+	local buttonFields = { "addButton", "undoButton", "clearButton", "hideButton", "emptyButton" }
 	for _, field in ipairs(buttonFields) do
-		local button = f[field]
-		local fontString = button and button.GetFontString and button:GetFontString()
-		if fontString then
-			self:StyleFont(fontString, 0)
+		self:StyleFont(f[field] and f[field]:GetFontString())
+	end
+	if f.filterButtons then
+		for _, button in pairs(f.filterButtons) do
+			self:StyleFont(button and button:GetFontString())
 		end
 	end
 
@@ -148,9 +177,8 @@ function DropList:ApplyFonts()
 			self:StyleFont(row.count, 0)
 			for _, field in ipairs({ "remove", "plus", "minus" }) do
 				local button = row[field]
-				local fontString = button and button.GetFontString and button:GetFontString()
-				if fontString then
-					self:StyleFont(fontString, 0)
+				if button and button.GetFontString then
+					self:StyleFont(button:GetFontString())
 				end
 			end
 		end
@@ -170,9 +198,13 @@ function DropList:ApplyOpacity(value)
 	end
 	local f = self.main
 	if f then
-		f:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+		local r, g, b = self:FrameBackground()
+		f:SetBackdropColor(r, g, b, self:FrameOpacity())
 		if f.search and f.search.SetBackdropColor then
-			f.search:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+			f.search:SetBackdropColor(r, g, b, self:FrameOpacity())
+		end
+		if f.statsChip then
+			f.statsChip:SetBackdropColor(r + 0.04, g + 0.04, b + 0.04, 0.85)
 		end
 	end
 	return true
@@ -205,11 +237,10 @@ function DropList:ApplySkin()
 	if f.SetBackdrop then
 		f:SetBackdrop(DropList.Widgets.Backdrop)
 	end
-	local r, g, b = self:AccentColor()
-	f:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
-	f:SetBackdropBorderColor(r, g, b, 1)
+	local r, g, b = self:FrameBackground()
+	f:SetBackdropColor(r, g, b, self:FrameOpacity())
 	if f.search and f.search.SetBackdropColor then
-		f.search:SetBackdropColor(0.03, 0.03, 0.05, self:FrameOpacity())
+		f.search:SetBackdropColor(r, g, b, self:FrameOpacity())
 	end
 
 	self:ApplyAccent()
@@ -217,8 +248,31 @@ function DropList:ApplySkin()
 	self:ApplyOpacity()
 end
 
+function DropList:SkinScrollBar(list)
+	if not list or not list.scroll then
+		return
+	end
+	local name = list.scroll:GetName()
+	if not name then
+		return
+	end
+	local r, g, b = self:AccentColor()
+	local thumb = _G[name .. "ThumbTexture"]
+	if thumb and thumb.SetVertexColor then
+		thumb:SetVertexColor(r, g, b, 0.7)
+	end
+	for _, suffix in ipairs({ "ScrollUpButton", "ScrollDownButton" }) do
+		local button = _G[name .. suffix]
+		local texture = button and button.GetNormalTexture and button:GetNormalTexture()
+		if texture and texture.SetVertexColor then
+			texture:SetVertexColor(r, g, b, 0.85)
+		end
+	end
+end
+
 function DropList:ApplyAccent()
 	local r, g, b = self:AccentColor()
+	local bgR, bgG, bgB = self:FrameBackground()
 	self.Colors.accent = { r, g, b }
 
 	local f = self.main
@@ -230,9 +284,30 @@ function DropList:ApplyAccent()
 		f:SetBackdropBorderColor(r, g, b, 1)
 	end
 
+	-- Cabecera con degradado y línea divisoria.
+	if f.titleBar and f.titleBar.SetGradient then
+		f.titleBar:SetGradient("HORIZONTAL",
+			bgR * 0.7, bgG * 0.7, bgB * 0.7,
+			bgR + 0.10, bgG + 0.10, bgB + 0.12)
+	end
+	if f.titleDivider then
+		f.titleDivider:SetVertexColor(r, g, b, 0.5)
+	end
 	if f.title then
 		f.title:SetText("DropList  |cff808080" .. tostring(self.version) .. "|r")
 		f.title:SetTextColor(r, g, b)
+	end
+	if f.searchIcon then
+		f.searchIcon:SetVertexColor(r, g, b, 0.9)
+	end
+	if f.search and f.search.backdrop then
+		f.search.backdrop:SetBackdropBorderColor(r, g, b, 0.8)
+	end
+	if f.statsChip then
+		f.statsChip:SetBackdropBorderColor(r, g, b, 0.45)
+	end
+	if f.countLabel then
+		f.countLabel:SetTextColor(0.85, 0.85, 0.85)
 	end
 	if f.itemHeader then
 		f.itemHeader:SetTextColor(r, g, b)
@@ -240,23 +315,56 @@ function DropList:ApplyAccent()
 	if f.countHeader then
 		f.countHeader:SetTextColor(r, g, b)
 	end
-	if f.countLabel then
-		f.countLabel:SetTextColor(0.80, 0.80, 0.80)
+	if f.nameDivider then
+		f.nameDivider.line:SetVertexColor(r, g, b, 0.55)
+	end
+	if f.countDivider then
+		f.countDivider.line:SetVertexColor(r, g, b, 0.30)
 	end
 	if f.hint then
 		f.hint:SetTextColor(0.55, 0.55, 0.55)
 	end
 	if f.emptyText then
-		f.emptyText:SetTextColor(0.60, 0.60, 0.60)
+		f.emptyText:SetTextColor(0.65, 0.65, 0.65)
 	end
-	if f.search and f.search.backdrop then
-		f.search.backdrop:SetBackdropBorderColor(r, g, b, 0.8)
+	if f.emptyIcon then
+		f.emptyIcon:SetVertexColor(r, g, b, 0.22)
 	end
 	if f.lastItem then
 		if self.lastItemLink then
 			f.lastItem:SetTextColor(r, g, b)
 		else
 			f.lastItem:SetTextColor(0.55, 0.55, 0.55)
+		end
+	end
+	if f.resizeGrip then
+		f.resizeGrip.line:SetVertexColor(r, g, b, 0.55)
+	end
+
+	local Widgets = DropList.Widgets
+	if Widgets then
+		for _, button in pairs({ f.addButton, f.undoButton, f.clearButton, f.hideButton, f.emptyButton }) do
+			Widgets.StyleButton(button, r, g, b)
+		end
+		if f.filterButtons then
+			for _, button in pairs(f.filterButtons) do
+				Widgets.StyleButton(button, r, g, b)
+			end
+		end
+		if f.itemList then
+			for _, row in ipairs(f.itemList.rows) do
+				for _, field in ipairs({ "remove", "plus", "minus" }) do
+					Widgets.StyleButton(row[field], r, g, b)
+				end
+				local highlight = row:GetHighlightTexture()
+				if highlight and highlight.SetVertexColor then
+					highlight:SetVertexColor(r, g, b, 0.18)
+				end
+				if row.iconBorder then
+					row.iconBorder:SetBackdropBorderColor(r, g, b, 0.65)
+				end
+			end
+			self:SkinScrollBar(f.itemList)
 		end
 	end
 
@@ -274,5 +382,8 @@ function DropList:SkinMinimapButton(button)
 	if button.border then
 		button.border:Show()
 		button.border:SetVertexColor(r, g, b, 1)
+	end
+	if button.glow then
+		button.glow:SetVertexColor(r, g, b, 0.35)
 	end
 end

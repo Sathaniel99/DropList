@@ -14,7 +14,7 @@ Widgets.Backdrop = {
 	insets = { left = 8, right = 8, top = 8, bottom = 8 },
 }
 
--- Fondo más fino para la caja de búsqueda.
+-- Fondo más fino para la caja de búsqueda y los chips.
 Widgets.InputBackdrop = {
 	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -24,6 +24,61 @@ Widgets.InputBackdrop = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
+-- Fondo de los botones propios, sin plantillas de Blizzard.
+Widgets.ButtonBackdrop = {
+	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+	tile = false,
+	edgeSize = 8,
+	insets = { left = 2, right = 2, top = 2, bottom = 2 },
+}
+
+local function frameBackground()
+	if DropList.FrameBackground then
+		return DropList:FrameBackground()
+	end
+	return 0.03, 0.03, 0.05
+end
+
+-- Aplica el color de acento y el estado (normal, activo, desactivado) a un botón.
+function Widgets.StyleButton(button, r, g, b)
+	if not button then
+		return
+	end
+	if not r then
+		r, g, b = DropList:AccentColor()
+	end
+	local bgR, bgG, bgB = frameBackground()
+	button:SetBackdropColor(bgR + 0.05, bgG + 0.05, bgB + 0.05, 0.9)
+	local alpha = 0.55
+	if button.active then
+		alpha = 1
+	elseif button.hover then
+		alpha = 0.9
+	end
+	if button.IsEnabled and not button:IsEnabled() then
+		alpha = 0.25
+	end
+	button:SetBackdropBorderColor(r, g, b, alpha)
+	if button.label then
+		if button.IsEnabled and not button:IsEnabled() then
+			button.label:SetTextColor(0.5, 0.5, 0.5)
+		elseif button.active then
+			button.label:SetTextColor(r, g, b)
+		else
+			button.label:SetTextColor(0.9, 0.9, 0.9)
+		end
+	end
+end
+
+function Widgets.SetButtonActive(button, active)
+	if not button then
+		return
+	end
+	button.active = active and true or false
+	Widgets.StyleButton(button)
+end
+
 function Widgets.Panel(name, width, height, title, closeOnEscape)
 	local frame = CreateFrame("Frame", name, UIParent)
 	frame:SetSize(width, height)
@@ -31,6 +86,7 @@ function Widgets.Panel(name, width, height, title, closeOnEscape)
 	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
 	frame:SetMovable(true)
+	frame:SetResizable(true)
 	frame:EnableMouse(true)
 	frame:SetClampedToScreen(true)
 	frame:SetBackdrop(Widgets.Backdrop)
@@ -43,6 +99,9 @@ function Widgets.Panel(name, width, height, title, closeOnEscape)
 		self:StopMovingOrSizing()
 		if self.onMove then
 			self.onMove(self)
+		end
+		if self.onResize then
+			self.onResize(self)
 		end
 	end)
 
@@ -69,13 +128,56 @@ function Widgets.Panel(name, width, height, title, closeOnEscape)
 	return frame
 end
 
+-- Botón plano con estados propios. Mantiene GetFontString/SetText para el skin.
 function Widgets.Button(parent, text, width, height, onClick)
-	local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+	local button = CreateFrame("Button", nil, parent)
 	button:SetSize(width or 80, height or 22)
-	button:SetText(text or "")
+	button:SetBackdrop(Widgets.ButtonBackdrop)
+
+	local label = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	label:SetPoint("CENTER")
+	label:SetText(text or "")
+	button.label = label
+
+	function button:GetFontString()
+		return label
+	end
+	function button:SetText(value)
+		label:SetText(value or "")
+	end
+
+	-- Se usan hooks para que quien quiera añadir tooltips pueda usar SetScript.
+	-- pcall protege clientes que no aceptan algún handler concreto.
+	local function hook(script, fn)
+		pcall(button.HookScript, button, script, fn)
+	end
+	hook("OnEnter", function(self)
+		self.hover = true
+		Widgets.StyleButton(self)
+	end)
+	hook("OnLeave", function(self)
+		self.hover = false
+		Widgets.StyleButton(self)
+	end)
+	hook("OnMouseDown", function(self)
+		self.pressed = true
+		Widgets.StyleButton(self)
+	end)
+	hook("OnMouseUp", function(self)
+		self.pressed = false
+		Widgets.StyleButton(self)
+	end)
+	hook("OnEnable", function(self)
+		Widgets.StyleButton(self)
+	end)
+	hook("OnDisable", function(self)
+		Widgets.StyleButton(self)
+	end)
+
 	if onClick then
 		button:SetScript("OnClick", onClick)
 	end
+	Widgets.StyleButton(button)
 	return button
 end
 
@@ -88,7 +190,7 @@ function Widgets.EditBox(parent, width, height, maxLetters)
 	box:SetBackdrop(Widgets.InputBackdrop)
 	box:SetBackdropColor(0.03, 0.03, 0.05, 0.94)
 	box:SetBackdropBorderColor(0.55, 0.55, 0.60, 1)
-	box:SetTextInsets(8, 8, 0, 0)
+	box:SetTextInsets(24, 8, 0, 0)
 	box.backdrop = box
 	if ChatFontNormal then
 		box:SetFontObject(ChatFontNormal)
@@ -105,12 +207,16 @@ function Widgets.EditBox(parent, width, height, maxLetters)
 end
 
 -- Lista con scroll reutilizable y filas fijas.
--- callbacks = { onCreateRow(row), onUpdateRow(row, data, index), onClick(row, data, mouseButton), onEnter(row, data), onLeave(row, data) }
+-- callbacks = { onCreateRow(row, index), onUpdateRow(row, data, index),
+--               onClick(row, data, mouseButton), onEnter(row, data), onLeave(row, data) }
+local MAX_ROWS = 24
+
 function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, callbacks)
 	local list = CreateFrame("Frame", nil, parent)
 	list:SetSize(width, height)
 	list.rowHeight = rowHeight
 	list.numRows = numRows
+	list.maxRows = MAX_ROWS
 	list.rows = {}
 	list.data = {}
 	list.callbacks = callbacks or {}
@@ -140,16 +246,15 @@ function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, cal
 		list:Scroll(delta)
 	end)
 
-	for index = 1, numRows do
+	for index = 1, MAX_ROWS do
 		local row = CreateFrame("Button", nil, list)
 		row:SetHeight(rowHeight)
 		row:SetPoint("TOPLEFT", list, "TOPLEFT", 0, -(index - 1) * rowHeight)
 		row:SetPoint("RIGHT", list, "RIGHT", -28, 0)
-		row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+		row:SetHighlightTexture("Interface\\Buttons\\WHITE8X8", "ADD")
 		local highlight = row:GetHighlightTexture()
 		if highlight then
-			highlight:SetBlendMode("ADD")
-			highlight:SetAlpha(0.35)
+			highlight:SetVertexColor(0.41, 0.80, 0.94, 0.18)
 		end
 
 		row:SetScript("OnClick", function(self, mouseButton)
@@ -175,10 +280,15 @@ function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, cal
 		end)
 
 		if list.callbacks.onCreateRow then
-			list.callbacks.onCreateRow(row)
+			list.callbacks.onCreateRow(row, index)
 		end
-
+		row:Hide()
 		list.rows[index] = row
+	end
+
+	function list:SetVisibleRows(count)
+		self.numRows = math.max(3, math.min(MAX_ROWS, math.floor(tonumber(count) or 3)))
+		self:Refresh()
 	end
 
 	function list:SetData(data)
@@ -193,8 +303,8 @@ function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, cal
 		self.__refreshing = true
 
 		local count = #self.data
-		local maxOffset = math.max(0, count - numRows)
-		FauxScrollFrame_Update(self.scroll, count, numRows, rowHeight)
+		local maxOffset = math.max(0, count - self.numRows)
+		FauxScrollFrame_Update(self.scroll, count, self.numRows, rowHeight)
 		local offset = FauxScrollFrame_GetOffset(self.scroll)
 		if offset > maxOffset then
 			local scrollbar = _G[scrollName .. "ScrollBar"]
@@ -204,17 +314,22 @@ function Widgets.List(parent, scrollName, width, height, rowHeight, numRows, cal
 			offset = maxOffset
 		end
 
-		for index = 1, numRows do
+		for index = 1, MAX_ROWS do
 			local row = self.rows[index]
-			local data = self.data[offset + index]
-			row.data = data
-			if data then
-				row:Show()
-				if list.callbacks.onUpdateRow then
-					list.callbacks.onUpdateRow(row, data, offset + index)
-				end
-			else
+			if index > self.numRows then
 				row:Hide()
+				row.data = nil
+			else
+				local data = self.data[offset + index]
+				row.data = data
+				if data then
+					row:Show()
+					if list.callbacks.onUpdateRow then
+						list.callbacks.onUpdateRow(row, data, offset + index)
+					end
+				else
+					row:Hide()
+				end
 			end
 		end
 		self.__refreshing = false

@@ -29,6 +29,19 @@ end
 
 local SCHEMA = 4
 
+-- Paletas de la interfaz: fondo y color de acento de cada una.
+DropList.PALETTES = {
+	obsidiana = { bg = { r = 0.03, g = 0.03, b = 0.05 }, accent = { r = 0.41, g = 0.80, b = 0.94 } },
+	cuero     = { bg = { r = 0.09, g = 0.06, b = 0.04 }, accent = { r = 0.85, g = 0.68, b = 0.42 } },
+	cian      = { bg = { r = 0.02, g = 0.06, b = 0.08 }, accent = { r = 0.16, g = 0.85, b = 0.95 } },
+	dorado    = { bg = { r = 0.07, g = 0.05, b = 0.02 }, accent = { r = 1.00, g = 0.82, b = 0.12 } },
+	esmeralda = { bg = { r = 0.02, g = 0.07, b = 0.05 }, accent = { r = 0.25, g = 0.90, b = 0.55 } },
+}
+
+function DropList:IsValidPalette(name)
+	return type(name) == "string" and DropList.PALETTES[string.lower(name)] ~= nil
+end
+
 local ACCOUNT_DEFAULTS = {
 	version = SCHEMA,
 	settings = {
@@ -40,6 +53,12 @@ local ACCOUNT_DEFAULTS = {
 		accent = { r = 0.41, g = 0.80, b = 0.94 },
 		opacity = 0.94,
 		fontSize = 0,
+		palette = "obsidiana",
+		background = { r = 0.03, g = 0.03, b = 0.05 },
+		-- Tamaño de la ventana y ancho de las columnas de la lista.
+		frameSize = { width = 440, height = 520 },
+		columns = { name = 210, count = 40 },
+		filter = "all",
 		tooltipButton = true,
 		-- Calidades que muestran el botón Añadir en el tooltip, según esté solo o en grupo.
 		tooltipQualities = {
